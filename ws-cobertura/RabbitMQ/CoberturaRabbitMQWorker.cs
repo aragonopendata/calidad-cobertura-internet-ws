@@ -100,7 +100,7 @@ namespace ws_cobertura.RabbitMQ
                         return GenerateConsumerResult(message, oResult, _coberturaRetryRule);
                     }
 
-                    if (!oReport.message.coordenadax.HasValue || !oReport.message.coordenadax.HasValue)
+                    if (!oReport.message.coordenadax.HasValue || !oReport.message.coordenaday.HasValue)
                     {
                         try
                         {
@@ -111,10 +111,20 @@ namespace ws_cobertura.RabbitMQ
                                 oReport.message.coordenadax = Double.Parse(oObtenerCoordenadasPorMunicipioResponse.coordenadax, CultureInfo.InvariantCulture);
                                 oReport.message.coordenaday = Double.Parse(oObtenerCoordenadasPorMunicipioResponse.coordenaday, CultureInfo.InvariantCulture);
 
-                                AnonimizarCoordenadasUTMResponse oCoordenadasAnonimizadas = _apiHelper.AnonimizarCoordenadasUTM(oReport.message.coordenadax.Value, oReport.message.coordenaday.Value);
+                                AnonimizarCoordenadasUTMResponse oCoordenadasAnonimizadas500 = _apiHelper.AnonimizarCoordenadasUTM(oReport.message.coordenadax.Value, oReport.message.coordenaday.Value, 500, 250);
 
-                                oReport.message.coordenadax = oCoordenadasAnonimizadas.coordenadax;
-                                oReport.message.coordenaday = oCoordenadasAnonimizadas.coordenaday;
+                                //se generan desde la anonimizada por 500
+                                AnonimizarCoordenadasUTMResponse oCoordenadasAnonimizadas5000 = _apiHelper.AnonimizarCoordenadasUTM(oCoordenadasAnonimizadas500.coordenadax, oCoordenadasAnonimizadas500.coordenaday, 5000, 2500);
+                                AnonimizarCoordenadasUTMResponse oCoordenadasAnonimizadas20000 = _apiHelper.AnonimizarCoordenadasUTM(oCoordenadasAnonimizadas500.coordenadax, oCoordenadasAnonimizadas500.coordenaday, 20000, 10000);
+
+                                oReport.message.coordenadax = oCoordenadasAnonimizadas500.coordenadax;
+                                oReport.message.coordenaday = oCoordenadasAnonimizadas500.coordenaday;
+
+                                oReport.message.coordenadax5000 = oCoordenadasAnonimizadas5000.coordenadax;
+                                oReport.message.coordenaday5000 = oCoordenadasAnonimizadas5000.coordenaday;
+
+                                oReport.message.coordenadax20000 = oCoordenadasAnonimizadas20000.coordenadax;
+                                oReport.message.coordenaday20000 = oCoordenadasAnonimizadas20000.coordenaday;
                             }
                             else
                             {
@@ -129,9 +139,16 @@ namespace ws_cobertura.RabbitMQ
                         }
                     }
 
-                    oReport.message.agrupado_cuadricula_tecnologia = ((int)oReport.message.coordenadax).ToString() + "|" + ((int)oReport.message.coordenaday).ToString() + "|" + oReport.message.tipoRed.ToString();
+                    /*oReport.message.agrupado_cuadricula_tecnologia = ((int)oReport.message.coordenadax).ToString() + "|" + ((int)oReport.message.coordenaday).ToString() + "|" + oReport.message.tipoRed.ToString();
                     oReport.message.agrupado_ine_tecnologia = (oReport.message.ine + "|" + oReport.message.tipoRed.ToString());
-                    oReport.message.agrupado_municipio_tecnologia = (oReport.message.municipio + "|" + oReport.message.tipoRed.ToString());
+                    oReport.message.agrupado_municipio_tecnologia = (oReport.message.municipio + "|" + oReport.message.tipoRed.ToString());*/
+                    oReport.message.agrupado_cuadricula_500 = ((int)oReport.message.coordenadax).ToString() + "|" + ((int)oReport.message.coordenaday).ToString();
+                    oReport.message.agrupado_cuadricula_5000 = ((int)oReport.message.coordenadax5000).ToString() + "|" + ((int)oReport.message.coordenaday5000).ToString();
+                    oReport.message.agrupado_cuadricula_20000 = ((int)oReport.message.coordenadax20000).ToString() + "|" + ((int)oReport.message.coordenaday20000).ToString();
+
+                    oReport.message.agrupado_cuadricula_500_categoria = ((int)oReport.message.coordenadax).ToString() + "|" + ((int)oReport.message.coordenaday).ToString() + "|" + oReport.message.categoria;
+                    oReport.message.agrupado_cuadricula_5000_categoria = ((int)oReport.message.coordenadax5000).ToString() + "|" + ((int)oReport.message.coordenaday5000).ToString() + "|" + oReport.message.categoria;
+                    oReport.message.agrupado_cuadricula_20000_categoria = ((int)oReport.message.coordenadax20000).ToString() + "|" + ((int)oReport.message.coordenaday20000).ToString() + "|" + oReport.message.categoria;
 
                     oReport.message.location = new CoberturaMessageLocation();
 
@@ -141,6 +158,47 @@ namespace ws_cobertura.RabbitMQ
 
                     oReport.message.location.lat = oLocation.geo_x;
                     oReport.message.location.lon = oLocation.geo_y;
+
+                    //para datos tooltip formateados
+                    oReport.Categoria = oReport.message.categoria;
+
+                    oReport.Fecha = Helper.EpochSecondsToDateTime(long.Parse(oReport.message.timestamp_seconds)).ToString("dd/MM/yyyy");
+
+                    oReport.Municipio = oReport.message.municipio;
+                    
+                    EnumRango.Intensidad oRangoIntensidad = EnumRango.calcularRangoIntensidad(oReport.message.valorIntensidadSenial, oReport.message.tipoRed);
+                    string textoRangoIntensidad = EnumRango.getStringValue(oRangoIntensidad);
+                    string textoIntensidad = oReport.message.valorIntensidadSenial.HasValue ? textoRangoIntensidad + " (" + Decimal.Round(oReport.message.valorIntensidadSenial.Value, 0, MidpointRounding.AwayFromZero).ToString() + " dBm)" : Constantes.CAMPO_SIN_DATOS;
+
+                    oReport.Intensidad = textoIntensidad;
+
+                    EnumRango.Latencia oRangoLatencia = EnumRango.calcularRangoLatencia(oReport.message.latencia, oReport.message.categoria);
+                    string tenxtoRangoLatencia = EnumRango.getStringValue(oRangoLatencia);
+                    string textoLatencia = oReport.message.latencia.HasValue ? tenxtoRangoLatencia + " (" + Decimal.Round(oReport.message.latencia.Value, 0, MidpointRounding.AwayFromZero).ToString() + " ms)" : Constantes.CAMPO_SIN_DATOS;
+
+                    oReport.Latencia = textoLatencia;
+
+                    EnumRango.VelocidadBajada oRangoVelocidadBajada = EnumRango.calcularRangoVelocidadBajada(oReport.message.velocidadBajada, oReport.message.categoria);
+                    string textoRangoVelocidadBajada = EnumRango.getStringValue(oRangoVelocidadBajada);
+                    string textoVelocidadBajada = oReport.message.velocidadBajada.HasValue ? textoRangoVelocidadBajada + " (" + Decimal.Round(oReport.message.velocidadBajada.Value, 2, MidpointRounding.AwayFromZero).ToString() + " Mbps)" : Constantes.CAMPO_SIN_DATOS;
+
+                    oReport.message.textoRangoVelocidadBajada = ((int)oRangoVelocidadBajada).ToString() + " - " + textoRangoVelocidadBajada;
+
+                    oReport.Calidad = oReport.message.textoRangoVelocidadBajada;
+
+                    oReport.Velocidad__Bajada = textoVelocidadBajada;
+
+                    EnumRango.VelocidadSubida oRangoVelocidadSubida = EnumRango.calcularRangoVelocidadSubida(oReport.message.velocidadSubida, oReport.message.categoria);
+                    string textoRangoVelocidadSubida = EnumRango.getStringValue(oRangoVelocidadSubida);
+                    string textoVelocidadSubida = oReport.message.velocidadSubida.HasValue ? textoRangoVelocidadSubida + " (" + Decimal.Round(oReport.message.velocidadSubida.Value, 2, MidpointRounding.AwayFromZero).ToString() + " Mbps)" : Constantes.CAMPO_SIN_DATOS;
+
+                    oReport.Velocidad__Subida = textoVelocidadSubida;
+
+                    oReport.Tipo__Red = !string.IsNullOrEmpty(oReport.message.tipoRed) ? oReport.message.tipoRed : Constantes.CAMPO_SIN_DATOS;
+                    oReport.Operador = !string.IsNullOrEmpty(oReport.message.operador) ? oReport.message.operador : Constantes.CAMPO_SIN_DATOS;
+                    oReport.Tipo__Dispositivo = !string.IsNullOrEmpty(oReport.message.modelo) ? oReport.message.modelo : Constantes.CAMPO_SIN_DATOS;
+                    oReport.SO__Dispositivo = !string.IsNullOrEmpty(oReport.message.so) ? oReport.message.so : Constantes.CAMPO_SIN_DATOS;
+
                 }
                 catch (Exception ex)
                 {

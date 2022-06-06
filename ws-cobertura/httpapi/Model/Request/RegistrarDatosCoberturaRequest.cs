@@ -7,9 +7,17 @@ namespace ws_cobertura.httpapi.Model.Request
         [JsonPropertyName("timestamp")]
         public string timestamp { get; set; }// Fecha y hora(en la franja horaria UTC) en la que se ha realizado la captura de datos de cobertura. En formato “YYYY-MM-dd HH:mm:ssZ”.
         [JsonPropertyName("coordenadax")]
-        public string coordenadax { get; set; }// Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura.
+        public string coordenadax { get; set; }// Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 500m
         [JsonPropertyName("coordenaday")]
-        public string coordenaday { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura.
+        public string coordenaday { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 500m
+        [JsonPropertyName("coordenadax5000")]
+        public string coordenadax5000 { get; set; }// Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 5000m
+        [JsonPropertyName("coordenaday5000")]
+        public string coordenaday5000 { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 5000m
+        [JsonPropertyName("coordenadax20000")]
+        public string coordenadax20000 { get; set; }// Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 20000m
+        [JsonPropertyName("coordenaday20000")]
+        public string coordenaday20000 { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 20000m
         [JsonPropertyName("municipio")]
         public string municipio { get; set; }// Nombre del municipio en el que se encuentra el usuario que ha realizado la captura de datos de cobertura.
         [JsonPropertyName("ine")]
@@ -38,5 +46,7 @@ namespace ws_cobertura.httpapi.Model.Request
         public string velocidadSubida { get; set; }// Velocidad de Subida(Mbits/s) en un test de velocidad que realiza el usuario con su dispositivo durante la captura.
         [JsonPropertyName("latencia")]
         public string latencia { get; set; }// Latencia(ping) en un test de velocidad que realiza el usuario con su dispositivo durante la captura.
+        [JsonPropertyName("categoria")]
+        public string categoria { get; set; } // indica si la red es tipo CABLEADA o RED MOVIL
     }
 }

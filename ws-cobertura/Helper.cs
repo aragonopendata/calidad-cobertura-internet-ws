@@ -43,6 +43,8 @@ namespace ws_cobertura
                 else {
                     mensajeVolcar = "|||DEBUG " + dTimeAhora.ToString("dd /MM/yyyy hh:mm:ss") + " " + clase + "." + metodo + " con mensaje: " + mensaje;
                 }
+
+                Console.WriteLine(mensajeVolcar);
             }
             catch (Exception ex) {
                 Console.WriteLine("No se pudo volcar a consola");

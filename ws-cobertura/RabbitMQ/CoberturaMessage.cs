@@ -13,9 +13,19 @@ namespace ws_cobertura.RabbitMQ
         [JsonPropertyName("timestamp_seconds")]
         public string timestamp_seconds { get; set; } // Fecha convertida a epoch_seconds para envío a elastic
         [JsonPropertyName("coordenadax")]
-        public double? coordenadax { get; set; }// Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura.
+        public double? coordenadax { get; set; }// Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 500m
         [JsonPropertyName("coordenaday")]
-        public double? coordenaday { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura.
+        public double? coordenaday { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 500m
+
+        [JsonPropertyName("coordenadax5000")]
+        public double? coordenadax5000 { get; set; } // Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 500m
+        [JsonPropertyName("coordenaday5000")]
+        public double? coordenaday5000 { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 50000m
+        [JsonPropertyName("coordenadax20000")]
+        public double? coordenadax20000 { get; set; } // Coordenada X en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 2000m
+        [JsonPropertyName("coordenaday20000")]
+        public double? coordenaday20000 { get; set; }// Coordenada Y en el estándar EPSG:25830 de la posición geográfica anonimizada del usuario que ha realizado la captura de datos de cobertura. Rango 20000m
+
         [JsonPropertyName("municipio")]
         public string municipio { get; set; }// Nombre del municipio en el que se encuentra el usuario que ha realizado la captura de datos de cobertura.
         [JsonPropertyName("ine")]
@@ -29,7 +39,7 @@ namespace ws_cobertura.RabbitMQ
         [JsonPropertyName("operador")]
         public string operador { get; set; }// Operador(Movistar, Vodafone, Orange, etc.) al que está conectado el dispositivo del usuario que está realizando la captura.
         [JsonPropertyName("valorIntensidadSenial")]
-        public decimal valorIntensidadSenial { get; set; }// Intensidad de la señal de la red a la que está conectado el dispositivo del usuario que está realizando la captura expresada en dBm.
+        public decimal? valorIntensidadSenial { get; set; }// Intensidad de la señal de la red a la que está conectado el dispositivo del usuario que está realizando la captura expresada en dBm.
         [JsonPropertyName("rangoIntensidadSenial")]
         public int rangoIntensidadSenial { get; set; }// Intensidad de la señal de la red a la que está conectado el dispositivo del usuario que está realizando la captura expresada mediante un número del 0 al 5. Los posibles valores son:
         /*o 5: Muy alta
@@ -42,6 +52,10 @@ namespace ws_cobertura.RabbitMQ
         public decimal? velocidadBajada { get; set; }// Velocidad de Bajada (Mbits/s) en un test de velocidad que realiza el usuario con su dispositivo durante la captura.
         [JsonPropertyName("rangoVelocidadBajada")]
         public int rangoVelocidadBajada { get; set; }
+
+        [JsonPropertyName("textoRangoVelocidadBajada")]
+        public string textoRangoVelocidadBajada { get; set; }
+
         [JsonPropertyName("velocidadSubida")]
         public decimal? velocidadSubida { get; set; }// Velocidad de Subida(Mbits/s) en un test de velocidad que realiza el usuario con su dispositivo durante la captura.
         [JsonPropertyName("rangoVelocidadSubida")]
@@ -50,12 +64,42 @@ namespace ws_cobertura.RabbitMQ
         public decimal? latencia { get; set; }
         [JsonPropertyName("rangoLatencia")]
         public int rangoLatencia { get; set; }
-        [JsonPropertyName("agrupado_cuadricula_tecnologia")]
+
+        [JsonPropertyName("arrMunicipios")]
+        public string[] arrMunicipios { get; set; }
+
+        [JsonPropertyName("arrTipoRed")]
+        public string[] arrTipoRed { get; set; }
+
+        [JsonPropertyName("arrCategorias")]
+        public string[] arrCategorias { get; set; }
+
+
+        [JsonPropertyName("categoria")]
+        public string categoria { get; set; } // indica si la red es tipo CABLEADA o RED MOVIL
+
+        /*[JsonPropertyName("agrupado_cuadricula_tecnologia")]
         public string agrupado_cuadricula_tecnologia { get; set; }// Mensaje agrupado con los campos claves para el indice por coordenadas y tecnologia
         [JsonPropertyName("agrupado_ine_tecnologia")]
         public string agrupado_ine_tecnologia { get; set; }// Mensaje agrupado con los campos claves para el indice por coordenadas y tecnologia
         [JsonPropertyName("agrupado_municipio_tecnologia")]
         public string agrupado_municipio_tecnologia { get; set; }// Mensaje agrupado con los campos claves para el indice por coordenadas y tecnologia
+        */
+
+        [JsonPropertyName("agrupado_cuadricula_500")]
+        public string agrupado_cuadricula_500 { get; set; }// Mensaje agrupado por cuadriculas de 500m
+        [JsonPropertyName("agrupado_cuadricula_5000")]
+        public string agrupado_cuadricula_5000 { get; set; }// Mensaje agrupado por cuadriculas de 5000m
+        [JsonPropertyName("agrupado_cuadricula_20000")]
+        public string agrupado_cuadricula_20000 { get; set; }// Mensaje agrupado por cuadriculas de 20000m
+
+        [JsonPropertyName("agrupado_cuadricula_500_categoria")]
+        public string agrupado_cuadricula_500_categoria { get; set; }// Mensaje agrupado por cuadriculas de 500m y categoria
+        [JsonPropertyName("agrupado_cuadricula_5000_categoria")]
+        public string agrupado_cuadricula_5000_categoria { get; set; }// Mensaje agrupado por cuadriculas de 5000m y categoria
+        [JsonPropertyName("agrupado_cuadricula_20000_categoria")]
+        public string agrupado_cuadricula_20000_categoria { get; set; }// Mensaje agrupado por cuadriculas de 20000m y categoria
+
         [JsonPropertyName("location")]
         public CoberturaMessageLocation location { get; set; }// Mensaje agrupado con los campos claves para el indice por coordenadas y tecnologia
 

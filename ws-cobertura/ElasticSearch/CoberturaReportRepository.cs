@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using ws_cobertura.httpapi.Model.Response;
 
 namespace ws_cobertura.ElasticSearch
 {
@@ -59,31 +60,31 @@ namespace ws_cobertura.ElasticSearch
             return response != null && response.IsValid;
         }
 
-        public async Task<bool> AddorEditListCoberturaReportAgrupadoCuadriculaTecnologia(List<CoberturaReportAgrupadoCuadriculaTecnologia> oListReports)
+        public async Task<bool> AddorEditListCoberturaReportAgrupadoCuadricula(List<CoberturaReportAgrupadoCuadricula> oListReports, string sIndexMapping)
         {
-            Nest.UpdateResponse<CoberturaReportAgrupadoCuadriculaTecnologia> response = null;
+            Nest.UpdateResponse<CoberturaReportAgrupadoCuadricula> response = null;
             try
             {
-                response = await _esCoberturaHelper.AddListCoberturaReportAgrupadoCuadriculaTecnologiaToIndex(oListReports);
+                response = await _esCoberturaHelper.AddListCoberturaReportAgrupadoCuadriculaToIndex(oListReports, sIndexMapping);
             }
             catch (Exception ex)
             {
-                Helper.VolcarAConsola("CoberturaReportRepository", "AddorEditListCoberturaReportAgrupadoCuadriculaTecnologia", ex.Message, true);
+                Helper.VolcarAConsola("CoberturaReportRepository", "AddorEditListCoberturaReportAgrupadoCuadricula", ex.Message, true);
             }
 
             return response != null && response.IsValid;
         }
 
-        public async Task<bool> DeleteIndexCoberturaReportAgrupadoCuadriculaTecnologia()
+        public async Task<bool> DeleteIndexCoberturaReportAgrupadoCuadricula(string sIndexMapping)
         {
             Nest.DeleteIndexResponse response = null;
             try
             {
-                response = await _esCoberturaHelper.DeleteIndexCoberturaReportAgrupadoCuadriculaTecnologia();
+                response = await _esCoberturaHelper.DeleteIndexCoberturaReportAgrupadoCuadricula(sIndexMapping);
             }
             catch (Exception ex)
             {
-                Helper.VolcarAConsola("CoberturaReportRepository", "DeleteIndexCoberturaReportAgrupadoCuadriculaTecnologia", ex.Message, true);
+                Helper.VolcarAConsola("CoberturaReportRepository", "DeleteIndexCoberturaReportAgrupadoCuadricula", ex.Message, true);
             }
 
             return response != null && response.IsValid;
@@ -92,16 +93,17 @@ namespace ws_cobertura.ElasticSearch
         public async Task<bool> GroupCoberturaReports()
         {
             bool bResult = false;
+
             try
             {
                 
-                DateTimeOffset? dUltimaFechaEjecucion = await _esCoberturaHelper.ObtenerUltimaEjecucionCorrectaCronPorIndexMapping("CoberturaReportAgrupadoCuadriculaTecnologia");
+                DateTimeOffset? dUltimaFechaEjecucion500 = await _esCoberturaHelper.ObtenerUltimaEjecucionCorrectaCronPorIndexMapping("CoberturaReportAgrupadoCuadricula500m");
 
-                List<CoberturaReportAgrupadoCuadriculaTecnologia> oListReportes = await _esCoberturaHelper.ObtenerReportesAgrupadosPorCuadriculaYTecnologia(dUltimaFechaEjecucion);
+                List<CoberturaReportAgrupadoCuadricula> oListReportes = await _esCoberturaHelper.ObtenerReportesAgrupadosPorCuadricula(dUltimaFechaEjecucion500, 500);
 
                 if (oListReportes.Count > 0)
                 {
-                    bResult = await AddorEditListCoberturaReportAgrupadoCuadriculaTecnologia(oListReportes);
+                    bResult = await AddorEditListCoberturaReportAgrupadoCuadricula(oListReportes, "CoberturaReportAgrupadoCuadricula500m");
                 }
                 else {
                     bResult = true;
@@ -109,7 +111,7 @@ namespace ws_cobertura.ElasticSearch
 
                 if (bResult == true)
                 {
-                    string sIndexName = _esCoberturaHelper.GetIndexNameForType("CoberturaReportAgrupadoCuadriculaTecnologia");
+                    string sIndexName = _esCoberturaHelper.GetIndexNameForType("CoberturaReportAgrupadoCuadricula500m");
 
                     CoberturaCronUltimaEjecucion oCoberturaCronUltimaEjecucion = new CoberturaCronUltimaEjecucion();
 
@@ -123,11 +125,98 @@ namespace ws_cobertura.ElasticSearch
             catch (Exception ex)
             {
                 bResult = false;
-                Helper.VolcarAConsola("CoberturaReportRepository", "GroupCoberturaReports", ex.Message, true);
+                Helper.VolcarAConsola("CoberturaReportRepository", "CoberturaReportAgrupadoCuadricula500m", ex.Message, true);
             }
-          
+
+            try
+            {
+
+                DateTimeOffset? dUltimaFechaEjecucion5000 = await _esCoberturaHelper.ObtenerUltimaEjecucionCorrectaCronPorIndexMapping("CoberturaReportAgrupadoCuadricula5000m");
+
+                List<CoberturaReportAgrupadoCuadricula> oListReportes = await _esCoberturaHelper.ObtenerReportesAgrupadosPorCuadricula(dUltimaFechaEjecucion5000, 5000);
+
+                if (oListReportes.Count > 0)
+                {
+                    bResult = await AddorEditListCoberturaReportAgrupadoCuadricula(oListReportes, "CoberturaReportAgrupadoCuadricula5000m");
+                }
+                else
+                {
+                    bResult = true;
+                }
+
+                if (bResult == true)
+                {
+                    string sIndexName = _esCoberturaHelper.GetIndexNameForType("CoberturaReportAgrupadoCuadricula5000m");
+
+                    CoberturaCronUltimaEjecucion oCoberturaCronUltimaEjecucion = new CoberturaCronUltimaEjecucion();
+
+                    oCoberturaCronUltimaEjecucion.reportid = Guid.NewGuid().ToString();
+                    oCoberturaCronUltimaEjecucion.fecha_ultima_ejecucion = DateTimeOffset.Now;
+                    oCoberturaCronUltimaEjecucion.nombre_index = sIndexName;
+
+                    await AddUltimaEjecucionCron(oCoberturaCronUltimaEjecucion);
+                }
+            }
+            catch (Exception ex)
+            {
+                bResult = false;
+                Helper.VolcarAConsola("CoberturaReportRepository", "CoberturaReportAgrupadoCuadricula5000m", ex.Message, true);
+            }
+
+            try
+            {
+                DateTimeOffset? dUltimaFechaEjecucion20000 = await _esCoberturaHelper.ObtenerUltimaEjecucionCorrectaCronPorIndexMapping("CoberturaReportAgrupadoCuadricula20000m");
+
+                List<CoberturaReportAgrupadoCuadricula> oListReportes = await _esCoberturaHelper.ObtenerReportesAgrupadosPorCuadricula(dUltimaFechaEjecucion20000, 20000);
+
+                if (oListReportes.Count > 0)
+                {
+                    bResult = await AddorEditListCoberturaReportAgrupadoCuadricula(oListReportes, "CoberturaReportAgrupadoCuadricula20000m");
+                }
+                else
+                {
+                    bResult = true;
+                }
+
+                if (bResult == true)
+                {
+                    string sIndexName = _esCoberturaHelper.GetIndexNameForType("CoberturaReportAgrupadoCuadricula20000m");
+
+                    CoberturaCronUltimaEjecucion oCoberturaCronUltimaEjecucion = new CoberturaCronUltimaEjecucion();
+
+                    oCoberturaCronUltimaEjecucion.reportid = Guid.NewGuid().ToString();
+                    oCoberturaCronUltimaEjecucion.fecha_ultima_ejecucion = DateTimeOffset.Now;
+                    oCoberturaCronUltimaEjecucion.nombre_index = sIndexName;
+
+                    await AddUltimaEjecucionCron(oCoberturaCronUltimaEjecucion);
+                }
+            }
+            catch (Exception ex)
+            {
+                bResult = false;
+                Helper.VolcarAConsola("CoberturaReportRepository", "CoberturaReportAgrupadoCuadricula20000m", ex.Message, true);
+            }
 
             return bResult;
         }
+
+        public async Task<ReportesAccesibilidadResponse> ObtenerReportesPaginados(string sIndexMapping,int iSkip, int iTake, string sortBy, string sortOrder, List<string> municipios, List<string> categorias, List<string> calidades)
+        {
+            ReportesAccesibilidadResponse oResponse = new ReportesAccesibilidadResponse();
+
+            try
+            {
+
+                oResponse = await _esCoberturaHelper.ObtenerReportesPaginado(sIndexMapping, iSkip, iTake, sortBy, sortOrder, municipios, categorias, calidades);
+
+            }
+            catch (Exception ex)
+            {
+                Helper.VolcarAConsola("CoberturaReportRepository", "ObtenerReportesPaginados", ex.Message, true);
+            }
+
+            return oResponse;
+        }
+
     }
 }

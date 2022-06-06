@@ -8,7 +8,7 @@ namespace ws_cobertura.ElasticSearch
 {
     [Nest.ElasticsearchType(IdProperty = nameof(IndexIdProperty))]
     [Serializable]
-    public class CoberturaReportAgrupadoCuadriculaTecnologia : IndexedESClass
+    public class CoberturaReportAgrupadoCuadricula : IndexedESClass
     {
         [Nest.Text(Ignore = true)]
         public override string IndexIdProperty { get { return reportid; } set { reportid = value; } }
@@ -24,11 +24,10 @@ namespace ws_cobertura.ElasticSearch
         public String clave { get; set; }
         public double coodenadax { get; set; }
         public double coodenaday { get; set; }
-        public string tipoRed { get; set; }
         public Decimal? mediaVelocidadSubida { get; set; }
         public Decimal? mediaVelocidadBajada { get; set; }
         public Decimal? mediaLatencia { get; set; }
-        public Decimal mediaValorIntensidadSenial { get; set; }
+        public Decimal? mediaValorIntensidadSenial { get; set; }
         public int mediaRangoIntensidadSenial { get; set; }
         public int mediaRangoVelocidadSubida { get; set; }
         public int mediaRangoVelocidadBajada { get; set; }
@@ -37,9 +36,7 @@ namespace ws_cobertura.ElasticSearch
         public DateTimeOffset maxTimestamp { get; set; }
         public long cantidadMedidas { get; set; }
 
-        public CoberturaAgrupadoCuaTecLocation location { get; set; }
-
-        public string[] arrMunicipios { get; set; }
+        public CoberturaAgrupadoCuaLocation location { get; set; }
 
         public string iconoVelocidadBajada { get; set; }
         public string iconoVelocidadSubida { get; set; }
@@ -48,28 +45,45 @@ namespace ws_cobertura.ElasticSearch
 
 
         // campos para tooltip mapa, llevan doble __ para reemplazarlo en cliente y enviarlos con espacios para la UI
+        public string Calidad { get; set; }
         public string Velocidad__Subida { get; set; }
         public string Velocidad__Bajada { get; set; }
         public string Latencia { get; set; }
         public string Tipo__Red { get; set; }
         public string Cantidad__Mediciones { get; set; }
         public string Municipios { get; set; }
+
+        public string Categoria { get; set; }
         public string Intensidad { get; set; }
-        public string Fecha__Desde { get; set; }
-        public string Fecha__Hasta { get; set; }
+        public string Datos__Desde { get; set; } //Fecha__Desde
+        public string Datos__Hasta { get; set; } //Fecha__Hasta
 
 
-/////////
+        /////////
 
-public CoberturaReportAgrupadoCuadriculaTecnologia()
+        public CoberturaReportAgrupadoMessage message = null; // para mantener misma estructura que reportes desagrupados, permite habilitar filtro general
+
+        public CoberturaReportAgrupadoCuadricula()
         {
             this.insertion_time = DateTimeOffset.Now;
+            this.message = new CoberturaReportAgrupadoMessage();
         }
 
     }
-    public class CoberturaAgrupadoCuaTecLocation
+    public class CoberturaAgrupadoCuaLocation
     {
         public double lat;
         public double lon;
+    }
+
+    public class CoberturaReportAgrupadoMessage {
+        public string[] arrMunicipios { get; set; }
+
+        public string[] arrCategorias { get; set; }
+        public string[] arrTipoRed { get; set; }
+
+        public string tipoRed { get; set; }
+
+        public string textoRangoVelocidadBajada { get; set; }
     }
 }
