@@ -11,6 +11,8 @@ using ws_cobertura.httpapi.Model.Configuration;
 using ws_cobertura.RabbitMQ;
 using ws_cobertura.httpapi.Model.Request;
 using ws_cobertura.httpapi.Model.Response;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace ws_cobertura.httpapi.Model.General
 {
@@ -137,7 +139,21 @@ namespace ws_cobertura.httpapi.Model.General
 
             oCoberturaMessage.arrCategorias = sListCategorias.ToArray();
 
-            if (!string.IsNullOrEmpty(sVelocidadBajada)) {
+            if (string.IsNullOrEmpty(sVelocidadBajada))
+            {
+                sVelocidadBajada = "0";
+            }
+
+            if (string.IsNullOrEmpty(sVelocidadSubida))
+            {
+                sVelocidadSubida = "0";
+            }
+
+            oCoberturaMessage.velocidadBajada = Decimal.Parse(sVelocidadBajada, CultureInfo.InvariantCulture);
+
+            oCoberturaMessage.velocidadSubida = Decimal.Parse(sVelocidadSubida, CultureInfo.InvariantCulture);
+
+            /*if (!string.IsNullOrEmpty(sVelocidadBajada)) {
                 oCoberturaMessage.velocidadBajada = Decimal.Parse(sVelocidadBajada, CultureInfo.InvariantCulture);
 
                 if (oCoberturaMessage.velocidadBajada == 0)
@@ -154,7 +170,7 @@ namespace ws_cobertura.httpapi.Model.General
                 {
                     oCoberturaMessage.velocidadSubida = null;
                 }
-            }
+            }*/
 
             if (!string.IsNullOrEmpty(sLatencia))
             {
@@ -230,7 +246,34 @@ namespace ws_cobertura.httpapi.Model.General
                 oCoberturaMessage.rangoLatencia = (int)oLatencia;
             }
 
-            if (!string.IsNullOrEmpty(sVelocidadBajada))
+            decimal? dVelocidadBajada = 0;
+
+            try
+            {
+                dVelocidadBajada = Decimal.Parse(sVelocidadBajada, CultureInfo.InvariantCulture);
+            }
+            catch (Exception exx)
+            {
+
+            }
+
+            EnumRango.VelocidadBajada oVelocidadBajada = EnumRango.calcularRangoVelocidadBajada(dVelocidadBajada, oCoberturaMessage.categoria);
+            oCoberturaMessage.rangoVelocidadBajada = (int)oVelocidadBajada;
+
+            decimal? dVelocidadSubida = 0;
+
+            try
+            {
+                dVelocidadSubida = Decimal.Parse(sVelocidadSubida, CultureInfo.InvariantCulture);
+            }
+            catch (Exception exx)
+            {
+
+            }
+
+            EnumRango.VelocidadSubida oVelocidadSubida = EnumRango.calcularRangoVelocidadSubida(dVelocidadSubida, oCoberturaMessage.categoria);
+            oCoberturaMessage.rangoVelocidadSubida = (int)oVelocidadSubida;
+            /*if (!string.IsNullOrEmpty(sVelocidadBajada))
             {
                 decimal? dRangoVelocidadBajada = null;
 
@@ -250,9 +293,9 @@ namespace ws_cobertura.httpapi.Model.General
             {
                 EnumRango.VelocidadBajada oVelocidadBajada = EnumRango.calcularRangoVelocidadBajada(null, oCoberturaMessage.categoria);
                 oCoberturaMessage.rangoVelocidadBajada = (int)oVelocidadBajada;
-            }
+            }*/
 
-            if (!string.IsNullOrEmpty(sVelocidadSubida))
+            /*if (!string.IsNullOrEmpty(sVelocidadSubida))
             {
                 decimal? dRangoVelocidadSubida = null;
 
@@ -272,7 +315,7 @@ namespace ws_cobertura.httpapi.Model.General
             {
                 EnumRango.VelocidadSubida oVelocidadSubida = EnumRango.calcularRangoVelocidadSubida(null, oCoberturaMessage.categoria);
                 oCoberturaMessage.rangoVelocidadSubida = (int)oVelocidadSubida;
-            }
+            }*/
 
             if (!string.IsNullOrEmpty(sLatencia))
             {
@@ -532,6 +575,81 @@ namespace ws_cobertura.httpapi.Model.General
             return oResponse;
         }
 
+        public MemoryStream generarFicheroXLSX(List<DatosCobertura> oListDatosCobertura)
+        {
+            MemoryStream mStreamFichero = new MemoryStream();
+
+            try
+            {
+                string sRutaFichero = string.Empty;
+
+                using (DocumentFormat.OpenXml.Packaging.SpreadsheetDocument document = DocumentFormat.OpenXml.Packaging.SpreadsheetDocument.Create(mStreamFichero, DocumentFormat.OpenXml.SpreadsheetDocumentType.Workbook))
+                {
+                    DocumentFormat.OpenXml.Packaging.WorkbookPart workbookPart = document.AddWorkbookPart();
+                    workbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
+
+                    DocumentFormat.OpenXml.Packaging.WorksheetPart workSheet = workbookPart.AddNewPart<DocumentFormat.OpenXml.Packaging.WorksheetPart>();
+
+                    var sheetData = new DocumentFormat.OpenXml.Spreadsheet.SheetData();
+                    workSheet.Worksheet = new DocumentFormat.OpenXml.Spreadsheet.Worksheet(sheetData);
+
+                    DocumentFormat.OpenXml.Spreadsheet.Sheets sheets = workbookPart.Workbook.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Sheets());
+
+                    DocumentFormat.OpenXml.Spreadsheet.Sheet sheetCobertura = new DocumentFormat.OpenXml.Spreadsheet.Sheet() { Id = workbookPart.GetIdOfPart(workSheet), SheetId = 1, Name = "Cobertura" };
+
+                    sheets.Append(sheetCobertura);
+
+                    DocumentFormat.OpenXml.Spreadsheet.Row headerRows = new DocumentFormat.OpenXml.Spreadsheet.Row();
+                    List<String> columns = new List<string>();
+                    JObject parsedJsonHeaderReporte = JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(oListDatosCobertura[0]));
+
+                    foreach (JProperty property in parsedJsonHeaderReporte.Properties())
+                    {
+                        columns.Add(property.Name.ToString());
+                        DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell();
+                        cell.DataType = DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
+                        cell.CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(property.Name.ToString());
+                        headerRows.AppendChild(cell);
+                    }
+
+                    sheetData.AppendChild(headerRows);
+
+                    foreach (DatosCobertura oDatosCobertura in oListDatosCobertura)
+                    {
+                        //serializamos y deserializamos a JSON para obener el orden correcto de los campos según el orden de serialización               
+
+                        JObject parsedJson = JObject.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(oDatosCobertura));
+
+                        DocumentFormat.OpenXml.Spreadsheet.Row newRow = new DocumentFormat.OpenXml.Spreadsheet.Row();
+
+                        foreach (JProperty property in parsedJson.Properties())
+                        {
+                            DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell();
+                            cell.DataType = DatosCobertura.getOpenXMLPropertyDataType(property.Name.ToString());
+                            cell.CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(property.Value.ToString());
+                            newRow.AppendChild(cell);
+                        }
+
+                        sheetData.AppendChild(newRow);
+                    }
+
+                    workbookPart.Workbook.Save();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            if (mStreamFichero.Length > 0)
+            {
+                mStreamFichero.Seek(0, SeekOrigin.Begin);
+            }
+
+            return mStreamFichero;
+        }
+
         private string normalizarTipoRed(string sTipoRed) {
 
 
@@ -622,14 +740,47 @@ namespace ws_cobertura.httpapi.Model.General
             return sCategoria;
         }
 
-        public bool comprobarCredencialesCarga(string sCreds) {
+        public bool comprobarCredencialesCarga(string sToken) {
 
-            if (string.IsNullOrEmpty(sCreds) || _apiConfiguration.tokenCarga != sCreds)
+            if (string.IsNullOrEmpty(sToken) || _apiConfiguration.tokenCarga != sToken)
             {
                 return false;
             }
 
             return true;
         }
+
+        public bool comprobarCredencialesAccesibilidad(string sToken)
+        {
+
+            if (string.IsNullOrEmpty(sToken) || _apiConfiguration.tokenAccesibilidad != sToken)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool comprobarCredencialesOpenData(string sToken)
+        {
+
+            if (string.IsNullOrEmpty(_apiConfiguration.tokenOpenData)) { // si token en config vacio, no hace falta autenticacion
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(sToken)) {
+                return false;
+            }
+
+            sToken = sToken.Replace("Bearer ", "");
+
+            if (_apiConfiguration.tokenOpenData != sToken)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }

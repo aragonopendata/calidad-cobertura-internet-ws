@@ -11,6 +11,11 @@ using System.Collections.Generic;
 using System.Text;
 using ws_cobertura.httpapi.Model.Configuration;
 using ws_cobertura.httpapi.Model.General;
+using System.Reflection;
+using System.IO;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Examples;
+using ws_cobertura.httpapi.Model.Request;
 
 namespace ws_cobertura
 {
@@ -33,7 +38,7 @@ namespace ws_cobertura
             services.AddCors();
             services.AddConnections();
             services.AddHttpClient();
-            services.AddControllers();
+            services.AddControllers();    
 
             services.AddAuthentication(CustomAuthorizationOptions.DefaultScemeName)
                 .AddScheme<CustomAuthorizationOptions, CustomAuthorizationHandler>(
@@ -41,6 +46,62 @@ namespace ws_cobertura
                     opts => {
                     }
                 );
+
+            //services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "API cobertura acceso a internet",
+                    Description = "API cobertura acceso a internet"
+                });
+               /* c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Token Bearer requerido, ejemplo: 'Bearer 12345abcdef'",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+               */
+                c.TagActionsBy(api => new[] { api.GroupName });
+                c.DocInclusionPredicate((name, api) => true);
+
+                APIConfiguration oAPIConfiguration = Configuration.GetSection("API").Get<APIConfiguration>();
+
+                List<string> sTokenSwagger = new List<string>();
+
+                if (oAPIConfiguration != null && !string.IsNullOrEmpty(oAPIConfiguration.tokenOpenData))
+                {
+                    sTokenSwagger.Add(oAPIConfiguration.tokenOpenData);
+                }
+
+                /*c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                  {
+                    {
+                      new OpenApiSecurityScheme
+                      {
+                        Reference = new OpenApiReference
+                          {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                          },
+                          Scheme = "oauth2",
+                          Name = "Bearer",
+                          In = ParameterLocation.Header
+                        },
+                        sTokenSwagger
+                      }
+                    });*/
+
+                c.SchemaFilter<PostDataRequestExample>();
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                c.IncludeXmlComments(xmlPath);
+            });
 
             services.AddSingleton<IServiceCollection>(services); // Última entrada siempre
             services.AddSingleton<ServiceProvider>(services.BuildServiceProvider()); // Última entrada siempre
@@ -62,6 +123,55 @@ namespace ws_cobertura
 
             app.UseAuthentication();
             app.UseAuthorization();
+            /*var basePath = "/v1";
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger(c => 
+                {
+                    c.SerializeAsV2 = true;
+                    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+                    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+                    {
+                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{basePath}" } };
+                    });
+                }
+            );*/
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+
+            APIConfiguration oAPIConfiguration = Configuration.GetSection("API").Get<APIConfiguration>();
+
+            string sBasePathSwagger = string.Empty;
+
+            string sRutaSwagger = "/swagger/v1/swagger.json";
+
+            string sUrlBaseSwagger = "http://localhost:5000/";
+
+            if (oAPIConfiguration != null && !string.IsNullOrEmpty(oAPIConfiguration.basePathSwagger))
+            {
+                sBasePathSwagger = oAPIConfiguration.basePathSwagger;
+                sRutaSwagger = sBasePathSwagger + "swagger/v1/swagger.json";
+            }
+
+            if (oAPIConfiguration != null && !string.IsNullOrEmpty(oAPIConfiguration.urlBaseSwagger))
+            {
+                sUrlBaseSwagger = oAPIConfiguration.urlBaseSwagger;
+            }
+
+            //app.UseSwagger();
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = "swagger/{documentName}/swagger.json";
+                c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+                {
+                    swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = sUrlBaseSwagger } };
+                });
+            });
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.)
+
+            //app.UseSwaggerUI(c=> { c.SwaggerEndpoint(rutaSwagger, "API Cobertura"); c.RoutePrefix = "swagger/ui"; });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint(sRutaSwagger, "API Cobertura"); });
+
 
             app.UseEndpoints(endpoints =>
             {
@@ -69,6 +179,7 @@ namespace ws_cobertura
                     name: "apicobertura",
                     pattern: "apicobertura",
                     defaults: new { controller = "httpapi.APICoberturaController", action = "404" });
+                endpoints.MapSwagger();
             });
         }
     }

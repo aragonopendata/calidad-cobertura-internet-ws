@@ -75,6 +75,21 @@ namespace ws_cobertura.ElasticSearch
             return response != null && response.IsValid;
         }
 
+        public async Task<bool> AddListCoberturaReport(List<CoberturaReport> oListReports, string sIndexMapping)
+        {
+            Nest.UpdateResponse<CoberturaReport> response = null;
+            try
+            {
+                response = await _esCoberturaHelper.AddListCoberturaReportToIndex(oListReports, sIndexMapping);
+            }
+            catch (Exception ex)
+            {
+                Helper.VolcarAConsola("CoberturaReportRepository", "AddListCoberturaReport", ex.Message, true);
+            }
+
+            return response != null && response.IsValid;
+        }
+        
         public async Task<bool> DeleteIndexCoberturaReportAgrupadoCuadricula(string sIndexMapping)
         {
             Nest.DeleteIndexResponse response = null;
@@ -101,25 +116,32 @@ namespace ws_cobertura.ElasticSearch
 
                 List<CoberturaReportAgrupadoCuadricula> oListReportes = await _esCoberturaHelper.ObtenerReportesAgrupadosPorCuadricula(dUltimaFechaEjecucion500, 500);
 
-                if (oListReportes.Count > 0)
+                if (oListReportes != null)
                 {
-                    bResult = await AddorEditListCoberturaReportAgrupadoCuadricula(oListReportes, "CoberturaReportAgrupadoCuadricula500m");
+                    if (oListReportes.Count > 0)
+                    {
+                        bResult = await AddorEditListCoberturaReportAgrupadoCuadricula(oListReportes, "CoberturaReportAgrupadoCuadricula500m");
+                    }
+                    else
+                    {
+                        bResult = true;
+                    }
+
+                    if (bResult == true)
+                    {
+                        string sIndexName = _esCoberturaHelper.GetIndexNameForType("CoberturaReportAgrupadoCuadricula500m");
+
+                        CoberturaCronUltimaEjecucion oCoberturaCronUltimaEjecucion = new CoberturaCronUltimaEjecucion();
+
+                        oCoberturaCronUltimaEjecucion.reportid = Guid.NewGuid().ToString();
+                        oCoberturaCronUltimaEjecucion.fecha_ultima_ejecucion = DateTimeOffset.Now;
+                        oCoberturaCronUltimaEjecucion.nombre_index = sIndexName;
+
+                        await AddUltimaEjecucionCron(oCoberturaCronUltimaEjecucion);
+                    }
                 }
                 else {
-                    bResult = true;
-                }
-
-                if (bResult == true)
-                {
-                    string sIndexName = _esCoberturaHelper.GetIndexNameForType("CoberturaReportAgrupadoCuadricula500m");
-
-                    CoberturaCronUltimaEjecucion oCoberturaCronUltimaEjecucion = new CoberturaCronUltimaEjecucion();
-
-                    oCoberturaCronUltimaEjecucion.reportid = Guid.NewGuid().ToString();
-                    oCoberturaCronUltimaEjecucion.fecha_ultima_ejecucion = DateTimeOffset.Now;
-                    oCoberturaCronUltimaEjecucion.nombre_index = sIndexName;
-
-                    await AddUltimaEjecucionCron(oCoberturaCronUltimaEjecucion);
+                    Helper.VolcarAConsola("CoberturaReportRepository", "CoberturaReportAgrupadoCuadricula500m", "No ejecutado", true);
                 }
             }
             catch (Exception ex)
@@ -128,7 +150,7 @@ namespace ws_cobertura.ElasticSearch
                 Helper.VolcarAConsola("CoberturaReportRepository", "CoberturaReportAgrupadoCuadricula500m", ex.Message, true);
             }
 
-            try
+            /*try
             {
 
                 DateTimeOffset? dUltimaFechaEjecucion5000 = await _esCoberturaHelper.ObtenerUltimaEjecucionCorrectaCronPorIndexMapping("CoberturaReportAgrupadoCuadricula5000m");
@@ -195,9 +217,49 @@ namespace ws_cobertura.ElasticSearch
             {
                 bResult = false;
                 Helper.VolcarAConsola("CoberturaReportRepository", "CoberturaReportAgrupadoCuadricula20000m", ex.Message, true);
+            }*/
+
+            return bResult;
+        }
+
+        public async Task<bool> AjustarTipoRed()
+        {
+            bool bResult = false;
+
+            try
+            {
+                bResult = await _esCoberturaHelper.AjustarTipoRed();
+
+                if (bResult == false) {
+                    Helper.VolcarAConsola("CoberturaReportRepository", "AjustarTipoRed", "No ejecutado", true);
+                }
+            }
+            catch (Exception ex)
+            {
+                bResult = false;
+                Helper.VolcarAConsola("CoberturaReportRepository", "AjustarTipoRed", ex.Message, true);
             }
 
             return bResult;
+        }
+
+        public async Task<ReportesFiltradosResponse> ObtenerReportesFiltrados(DateTime? dFechaDesde, DateTime? dFechaHasta, string sMunicipio, string sCodigoINE) {
+            ReportesFiltradosResponse oResponse = new ReportesFiltradosResponse();
+
+            string sIndexMapping = "CoberturaReport";
+
+            try
+            {
+
+                oResponse = _esCoberturaHelper.ObtenerReportesFiltrados(sIndexMapping, dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE);
+
+            }
+            catch (Exception ex)
+            {
+                Helper.VolcarAConsola("CoberturaReportRepository", "ObtenerTodosReportes", ex.Message, true);
+            }
+
+            return oResponse;
         }
 
         public async Task<ReportesAccesibilidadResponse> ObtenerReportesPaginados(string sIndexMapping,int iSkip, int iTake, string sortBy, string sortOrder, List<string> municipios, List<string> categorias, List<string> calidades)

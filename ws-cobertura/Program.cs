@@ -54,7 +54,7 @@ namespace ws_cobertura
         protected static IServiceCollection _services;
         static async Task Main(string[] args)
         {
-            await Task.Delay(30000); //esperamos 30 segundos para inciar la aplicación, ya que el rabbit puede tardar un poco en iniciarse por completo
+            await Task.Delay(30000); //esperamos 30 segundos para inciar la aplicación, ya que RabbitMQ puede tardar un poco en iniciarse por completo y si iniciamos el consumidor sin estar RabbitMQ listo el consumidor fallará
 
             var webHost = Host.CreateDefaultBuilder(args)
                 .ConfigureLogging((hostContext, loggingBuilder) =>

@@ -26,19 +26,19 @@ namespace ws_cobertura
         public enum VelocidadBajada : int
         {
             Desconocido = 0, // 0
-            MuyBaja = 1,   // 1
-            Baja = 2,      // 2
-            Media = 3,     // 3
-            Alta = 4
+            Baja = 1,   // 1
+            Media = 2,      // 2
+            Alta = 3,     // 3
+            MuyAlta = 4
         }
 
         public enum VelocidadSubida : int
         {
             Desconocido = 0, // 0
-            MuyBaja = 1,   // 1
-            Baja = 2,      // 2
-            Media = 3,     // 3
-            Alta = 4
+            Baja = 1,   // 1
+            Media = 2,      // 2
+            Alta = 3,     // 3
+            MuyAlta = 4
         }
 
         public static int normalizarRangoIntensidad(int iRango)
@@ -115,9 +115,6 @@ namespace ws_cobertura
                 /*case VelocidadBajada.SinSenyal:
                     sStringVal = "Sin Señal";
                     break;*/
-                case VelocidadBajada.MuyBaja:
-                    sStringVal = "Muy Baja";
-                    break;
                 case VelocidadBajada.Baja:
                     sStringVal = "Baja";
                     break;
@@ -126,6 +123,9 @@ namespace ws_cobertura
                     break;
                 case VelocidadBajada.Alta:
                     sStringVal = "Alta";
+                    break;
+                case VelocidadBajada.MuyAlta:
+                    sStringVal = "Muy Alta";
                     break;
                 /*case VelocidadBajada.MuyAlta:
                     sStringVal = "Muy Alta";
@@ -148,9 +148,6 @@ namespace ws_cobertura
                /* case VelocidadSubida.SinSenyal:
                     sStringVal = "Sin Señal";
                     break;*/
-                case VelocidadSubida.MuyBaja:
-                    sStringVal = "Muy Baja";
-                    break;
                 case VelocidadSubida.Baja:
                     sStringVal = "Baja";
                     break;
@@ -159,6 +156,9 @@ namespace ws_cobertura
                     break;
                 case VelocidadSubida.Alta:
                     sStringVal = "Alta";
+                    break;
+                case VelocidadSubida.MuyAlta:
+                    sStringVal = "Muy Alta";
                     break;
                 /*case VelocidadSubida.MuyAlta:
                     sStringVal = "Muy Alta";
@@ -383,38 +383,38 @@ namespace ws_cobertura
                     {
                         if (iValor < 30)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.MuyBaja;
+                            oEnumRango = EnumRango.VelocidadBajada.Baja;
                         }
                         else if (iValor < 100)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.Baja;
+                            oEnumRango = EnumRango.VelocidadBajada.Media;
                         }
                         else if (iValor < 300)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.Media;
+                            oEnumRango = EnumRango.VelocidadBajada.Alta;
                         }
                         else if (iValor >= 300)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.Alta;
+                            oEnumRango = EnumRango.VelocidadBajada.MuyAlta;
                         }
                     }
                     else // por defecto umbral de red movil
                     {
                         if (iValor < 1)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.MuyBaja;
+                            oEnumRango = EnumRango.VelocidadBajada.Baja;
                         }
                         else if (iValor < 5)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.Baja;
+                            oEnumRango = EnumRango.VelocidadBajada.Media;
                         }
                         else if (iValor < 30)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.Media;
+                            oEnumRango = EnumRango.VelocidadBajada.Alta;
                         }
                         else if (iValor >= 30)
                         {
-                            oEnumRango = EnumRango.VelocidadBajada.Alta;
+                            oEnumRango = EnumRango.VelocidadBajada.MuyAlta;
                         }
                     }
                 }
@@ -492,38 +492,38 @@ namespace ws_cobertura
                     {
                         if (iValor < 30)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.MuyBaja;
+                            oEnumRango = EnumRango.VelocidadSubida.Baja;
                         }
                         else if (iValor < 100)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.Baja;
+                            oEnumRango = EnumRango.VelocidadSubida.Media;
                         }
                         else if (iValor < 300)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.Media;
+                            oEnumRango = EnumRango.VelocidadSubida.Alta;
                         }
                         else if (iValor >= 300)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.Alta;
+                            oEnumRango = EnumRango.VelocidadSubida.MuyAlta;
                         }
                     }
                     else // por defecto umbral de red movil
                     {
                         if (iValor < 0.5)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.MuyBaja;
+                            oEnumRango = EnumRango.VelocidadSubida.Baja;
                         }
                         else if (iValor < 3)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.Baja;
+                            oEnumRango = EnumRango.VelocidadSubida.Media;
                         }
                         else if (iValor < 10)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.Media;
+                            oEnumRango = EnumRango.VelocidadSubida.Alta;
                         }
                         else if (iValor >= 10)
                         {
-                            oEnumRango = EnumRango.VelocidadSubida.Alta;
+                            oEnumRango = EnumRango.VelocidadSubida.MuyAlta;
                         }
                     }
                 }
@@ -679,19 +679,19 @@ namespace ws_cobertura
 
                         iValorIcono = 0;
                         break;*/
-                    case EnumRango.VelocidadBajada.MuyBaja:
+                    case EnumRango.VelocidadBajada.Baja:
 
                         iValorIcono = 1;
                         break;
-                    case EnumRango.VelocidadBajada.Baja:
+                    case EnumRango.VelocidadBajada.Media:
 
                         iValorIcono = 2;
                         break;
-                    case EnumRango.VelocidadBajada.Media:
+                    case EnumRango.VelocidadBajada.Alta:
 
                         iValorIcono = 3;
                         break;
-                    case EnumRango.VelocidadBajada.Alta:
+                    case EnumRango.VelocidadBajada.MuyAlta:
 
                         iValorIcono = 4;
                         break;
@@ -729,19 +729,19 @@ namespace ws_cobertura
 
                         iValorIcono = 0;
                         break;*/
-                    case EnumRango.VelocidadSubida.MuyBaja:
+                    case EnumRango.VelocidadSubida.Baja:
 
                         iValorIcono = 1;
                         break;
-                    case EnumRango.VelocidadSubida.Baja:
+                    case EnumRango.VelocidadSubida.Media:
 
                         iValorIcono = 2;
                         break;
-                    case EnumRango.VelocidadSubida.Media:
+                    case EnumRango.VelocidadSubida.Alta:
 
                         iValorIcono = 3;
                         break;
-                    case EnumRango.VelocidadSubida.Alta:
+                    case EnumRango.VelocidadSubida.MuyAlta:
 
                         iValorIcono = 4;
                         break;

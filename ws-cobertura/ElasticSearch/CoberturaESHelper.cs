@@ -121,7 +121,30 @@ namespace ws_cobertura.ElasticSearch
             return response;
         }
 
-        
+        public async Task<UpdateResponse<CoberturaReport>> AddListCoberturaReportToIndex(List<CoberturaReport> documentList, string sMappingProperty)
+        {
+            string sIndexName = string.Empty;
+
+            if (!string.IsNullOrEmpty(sMappingProperty))
+            {
+                sIndexName = GetIndexNameForType(sMappingProperty);
+            }
+
+            ElasticClient client = CreateClient();
+            UpdateResponse<CoberturaReport> response = null;
+
+            foreach (CoberturaReport oCoberturaReport in documentList)
+            {
+                response = await client.UpdateAsync<CoberturaReport>(new DocumentPath<CoberturaReport>(oCoberturaReport.IndexIdProperty).Index(sIndexName),
+                    u => u.DocAsUpsert(true)
+                          .Index(sIndexName)
+                          .Doc(oCoberturaReport)
+                );
+            }
+
+            return response;
+        }
+
         public async Task<DateTimeOffset?> ObtenerUltimaEjecucionCorrectaCronPorIndexMapping(string sIndexMappingNameBuscar)
         {
             DateTimeOffset? dUltimaFechaEjecucion = null;
@@ -536,8 +559,6 @@ namespace ws_cobertura.ElasticSearch
                         }
                     }
 
-
-
                     if (sKeysModificadasDesdeUltimaEjecucion.Count > 0)
                         response = await client.SearchAsync<CoberturaReport>(s => s.Index(sIndexName)
                             .Query(q => q //para filtrar solo las keys modificadas desde ultima ejecucion
@@ -566,7 +587,8 @@ namespace ws_cobertura.ElasticSearch
 
             if (response != null && response.IsValid)
             {
-                if (response.Aggregations.Count > 0 && response.Aggregations["agregado"] != null) {
+                if (response.Aggregations.Count > 0 && response.Aggregations["agregado"] != null)
+                {
                     var responseAggs = response.Aggregations.Terms("agregado");
 
                     foreach (var childAgg in responseAggs.Buckets)
@@ -622,7 +644,8 @@ namespace ws_cobertura.ElasticSearch
                             oCoberturaReportAgrupadoCuadriculaTecnologia.coodenadax = (double)vaCoordenadaX.Value;
                             oCoberturaReportAgrupadoCuadriculaTecnologia.coodenaday = (double)vaCoordenadaY.Value;
                         }
-                        else if (iRangoAgrupado == 5000) {
+                        else if (iRangoAgrupado == 5000)
+                        {
                             oCoberturaReportAgrupadoCuadriculaTecnologia.coodenadax = (double)vaCoordenadaX5000.Value;
                             oCoberturaReportAgrupadoCuadriculaTecnologia.coodenaday = (double)vaCoordenadaY5000.Value;
                         }
@@ -648,11 +671,14 @@ namespace ws_cobertura.ElasticSearch
 
                         List<string> sListMunicipios = new List<string>();
 
-                        if (vaMunicipios != null && vaMunicipios.Items.Count > 0) {
-                            foreach (var municipioBucket in vaMunicipios.Items) {
+                        if (vaMunicipios != null && vaMunicipios.Items.Count > 0)
+                        {
+                            foreach (var municipioBucket in vaMunicipios.Items)
+                            {
                                 string sMunicipio = ((KeyedBucket<object>)municipioBucket).Key.ToString();
 
-                                if (!string.IsNullOrEmpty(sMunicipio)) {
+                                if (!string.IsNullOrEmpty(sMunicipio))
+                                {
                                     if (!sListMunicipios.Contains(sMunicipio))
                                     {
                                         sListMunicipios.Add(sMunicipio);
@@ -719,16 +745,19 @@ namespace ws_cobertura.ElasticSearch
 
                         oCoberturaReportAgrupadoCuadriculaTecnologia.message.arrTipoRed = sListTiposRed.ToArray();
 
-                        if (vaTipoRed.Top != null && vaTipoRed.Top.Count > 0 && vaTipoRed.Top.FirstOrDefault() != null && vaTipoRed.Top.FirstOrDefault().Metrics != null && vaTipoRed.Top.FirstOrDefault().Metrics.Count > 0) {
+                        if (vaTipoRed.Top != null && vaTipoRed.Top.Count > 0 && vaTipoRed.Top.FirstOrDefault() != null && vaTipoRed.Top.FirstOrDefault().Metrics != null && vaTipoRed.Top.FirstOrDefault().Metrics.Count > 0)
+                        {
                             oCoberturaReportAgrupadoCuadriculaTecnologia.message.tipoRed = vaTipoRed.Top.FirstOrDefault().Metrics.FirstOrDefault().Value.ToString();
                         }
 
-                        if (vaMinTimestamp.Value.HasValue) {
+                        if (vaMinTimestamp.Value.HasValue)
+                        {
                             oCoberturaReportAgrupadoCuadriculaTecnologia.minTimestamp = Helper.EpochMillisToDateTime((long)vaMinTimestamp.Value.Value);
 
                         }
 
-                        if (vaMaxTimestamp.Value.HasValue) {
+                        if (vaMaxTimestamp.Value.HasValue)
+                        {
                             oCoberturaReportAgrupadoCuadriculaTecnologia.maxTimestamp = Helper.EpochMillisToDateTime((long)vaMaxTimestamp.Value.Value);
                         }
 
@@ -776,6 +805,11 @@ namespace ws_cobertura.ElasticSearch
                         
                         oCoberturaReportAgrupadoCuadriculaTecnologia.Intensidad = textoIntensidad;*/
 
+                        if (!oCoberturaReportAgrupadoCuadriculaTecnologia.mediaVelocidadBajada.HasValue)
+                        {
+                            oCoberturaReportAgrupadoCuadriculaTecnologia.mediaVelocidadBajada = 0;
+                        }
+
                         EnumRango.VelocidadBajada oRangoBajada = EnumRango.calcularRangoVelocidadBajada(oCoberturaReportAgrupadoCuadriculaTecnologia.mediaVelocidadBajada, sCategoria);
 
                         oCoberturaReportAgrupadoCuadriculaTecnologia.mediaRangoVelocidadBajada = (int)oRangoBajada;
@@ -789,6 +823,11 @@ namespace ws_cobertura.ElasticSearch
                         oCoberturaReportAgrupadoCuadriculaTecnologia.Calidad = oCoberturaReportAgrupadoCuadriculaTecnologia.message.textoRangoVelocidadBajada;
 
                         oCoberturaReportAgrupadoCuadriculaTecnologia.Velocidad__Bajada = textoVelocidadBajada;
+
+                        if (!oCoberturaReportAgrupadoCuadriculaTecnologia.mediaVelocidadSubida.HasValue)
+                        {
+                            oCoberturaReportAgrupadoCuadriculaTecnologia.mediaVelocidadSubida = 0;
+                        }
 
                         EnumRango.VelocidadSubida oRangoSubida = EnumRango.calcularRangoVelocidadSubida(oCoberturaReportAgrupadoCuadriculaTecnologia.mediaVelocidadSubida, sCategoria);
 
@@ -813,7 +852,7 @@ namespace ws_cobertura.ElasticSearch
                         oCoberturaReportAgrupadoCuadriculaTecnologia.mediaRangoIntensidadSenial = vaMediaRangoIntensidadSenial.Items != null && vaMediaRangoIntensidadSenial.Items.Count > 0 ? (int)vaMediaRangoIntensidadSenial.Items[0].Value : 0;
                         oCoberturaReportAgrupadoCuadriculaTecnologia.mediaRangoIntensidadSenial = EnumRango.normalizarRangoIntensidad(oCoberturaReportAgrupadoCuadriculaTecnologia.mediaRangoIntensidadSenial);
 
-                        EnumRango.Intensidad oRangoIntensidad = (EnumRango.Intensidad) oCoberturaReportAgrupadoCuadriculaTecnologia.mediaRangoIntensidadSenial;
+                        EnumRango.Intensidad oRangoIntensidad = (EnumRango.Intensidad)oCoberturaReportAgrupadoCuadriculaTecnologia.mediaRangoIntensidadSenial;
 
                         string textoRangoIntensidad = EnumRango.getStringValue(oRangoIntensidad);
                         string textoIntensidad = oCoberturaReportAgrupadoCuadriculaTecnologia.mediaValorIntensidadSenial.HasValue ? textoRangoIntensidad + " (" + Decimal.Round(oCoberturaReportAgrupadoCuadriculaTecnologia.mediaValorIntensidadSenial.Value, 0, MidpointRounding.AwayFromZero).ToString() + " dBm)" : Constantes.CAMPO_SIN_DATOS;
@@ -828,7 +867,8 @@ namespace ws_cobertura.ElasticSearch
                         oCoberturaReportAgrupadoCuadriculaTecnologia.Categoria = oCoberturaReportAgrupadoCuadriculaTecnologia.message.arrCategorias.Length > 0 ? string.Join(", ", oCoberturaReportAgrupadoCuadriculaTecnologia.message.arrCategorias) : string.Empty;
                         oCoberturaReportAgrupadoCuadriculaTecnologia.Tipo__Red = oCoberturaReportAgrupadoCuadriculaTecnologia.message.arrTipoRed.Length > 0 ? string.Join(", ", oCoberturaReportAgrupadoCuadriculaTecnologia.message.arrTipoRed) : string.Empty;
 
-                        if (string.IsNullOrEmpty(oCoberturaReportAgrupadoCuadriculaTecnologia.Tipo__Red)) {
+                        if (string.IsNullOrEmpty(oCoberturaReportAgrupadoCuadriculaTecnologia.Tipo__Red))
+                        {
                             oCoberturaReportAgrupadoCuadriculaTecnologia.Tipo__Red = !string.IsNullOrEmpty(oCoberturaReportAgrupadoCuadriculaTecnologia.message.tipoRed) ? oCoberturaReportAgrupadoCuadriculaTecnologia.message.tipoRed : Constantes.CAMPO_SIN_DATOS;
                         }
 
@@ -841,6 +881,9 @@ namespace ws_cobertura.ElasticSearch
                     }
                 }
             }
+            else {
+                listDocuments = null;
+            }
 
             return listDocuments;
         }
@@ -852,8 +895,6 @@ namespace ws_cobertura.ElasticSearch
             string sIndexNameUsar = GetIndexNameForType(sIndexMappingNameBuscar);
 
             ElasticClient client = CreateClient();
-
-            string sIndexNameBuscar = GetIndexNameForType(sIndexMappingNameBuscar);
 
             /*var response = await client.SearchAsync<CoberturaReport>(s => s.Index(sIndexNameUsar)
                     .Query(q => q //para filtrar solo las keys modificadas desde ultima ejecucion
@@ -1075,5 +1116,341 @@ namespace ws_cobertura.ElasticSearch
             return oResponse;
         }
 
-    }
+
+        public ReportesFiltradosResponse ObtenerReportesFiltrados(string sIndexMappingNameBuscar, DateTime? dFechaDesde, DateTime? dFechaHasta, string sMunicipio, string sCodigoINE) {
+
+            ReportesFiltradosResponse oResponse = new ReportesFiltradosResponse();
+
+            oResponse.documents = new List<DatosCobertura>();
+
+            string sIndexNameUsar = GetIndexNameForType(sIndexMappingNameBuscar);
+            string sTimeoutScroll = "1m"; //timeout scroll
+            //sTimeoutScroll = "30s";
+
+            ElasticClient client = CreateClient();
+
+            SearchDescriptor<CoberturaReport> oSearch = new SearchDescriptor<CoberturaReport>();
+
+            oSearch = oSearch.Index(sIndexNameUsar);
+
+            List<QueryContainer> oListQueryContainer = new List<QueryContainer>();
+            List<QueryContainerDescriptor<DatosCobertura>> oListQueryContainerDescriptor = new List<QueryContainerDescriptor<DatosCobertura>>();
+
+            if (dFechaDesde.HasValue || dFechaHasta.HasValue)
+            {
+                Field oFieldKey = new Nest.Field("message.timestamp_seconds");
+
+                DateRangeQuery oDateRangeQuery = new DateRangeQuery();
+
+                oDateRangeQuery.Field = oFieldKey;
+
+                if (dFechaDesde.HasValue) {
+
+                    string sSegundosFechaDesde = Helper.DateTimeToEpochSeconds(dFechaDesde.Value);
+                    sSegundosFechaDesde = sSegundosFechaDesde.Replace(",", ".");
+
+                    oDateRangeQuery.GreaterThanOrEqualTo = sSegundosFechaDesde;
+                }
+
+                if (dFechaHasta.HasValue) {
+                    string sSegundosFechaHasta = Helper.DateTimeToEpochSeconds(dFechaHasta.Value);
+                    sSegundosFechaHasta = sSegundosFechaHasta.Replace(",", ".");
+
+                    oDateRangeQuery.LessThanOrEqualTo = sSegundosFechaHasta;
+                }
+
+                QueryContainerDescriptor<DatosCobertura> oQueryContainerDescriptor = new QueryContainerDescriptor<DatosCobertura>();
+
+                oQueryContainerDescriptor.DateRange(dr=> oDateRangeQuery);
+
+                oListQueryContainerDescriptor.Add(oQueryContainerDescriptor);
+            }
+
+            if (!string.IsNullOrEmpty(sMunicipio))
+            {
+                sMunicipio = sMunicipio.ToLower();
+                sMunicipio = sMunicipio.Replace("*", "");
+                sMunicipio = "*" + sMunicipio + "*";
+
+                Field oFieldKey = new Nest.Field("message.municipio");
+
+                QueryContainer oQueryContainer = new QueryContainer(new WildcardQuery()
+                {
+                    Field = oFieldKey,
+                    Value = sMunicipio
+                });
+
+                oListQueryContainer.Add(oQueryContainer);
+            }
+
+            if (!string.IsNullOrEmpty(sCodigoINE))
+            {
+                sCodigoINE = sCodigoINE.ToLower();
+
+                Field oFieldKey = new Nest.Field("message.ine");
+
+                QueryContainer oQueryContainer = new QueryContainer(new PrefixQuery()
+                {
+                    Field = oFieldKey,
+                    Value = sCodigoINE
+                });
+
+                oListQueryContainer.Add(oQueryContainer);
+            }
+
+            BoolQueryDescriptor<DatosCobertura> oBoolQueryDescriptor = null;
+
+            if (oListQueryContainer.Count > 0 || oListQueryContainerDescriptor.Count > 0)
+            {
+                oBoolQueryDescriptor = new BoolQueryDescriptor<DatosCobertura>();
+
+                if (oListQueryContainer.Count > 0) {
+                    oBoolQueryDescriptor.Must(oListQueryContainer.ToArray());
+                }
+
+                if (oListQueryContainerDescriptor.Count > 0)
+                {
+                    oBoolQueryDescriptor.Filter(oListQueryContainerDescriptor.ToArray());
+                }
+            }
+
+            if (oBoolQueryDescriptor != null)
+            {
+                oSearch.Query(q => q
+                        .Bool(b => oBoolQueryDescriptor)
+                );
+            }
+            else {
+                oSearch.MatchAll();
+            }
+
+            oSearch.From(0);
+            oSearch.Size(10000);
+
+            oSearch.Source(sf => sf
+                .Includes(i => i
+                    .Fields(f => f.message.categoria, f => f.Calidad, f => f.message.municipio, f => f.message.ine, f => f.message.modelo, f => f.message.so
+                    , f => f.message.tipoRed, f => f.message.operador, f => f.message.coordenadax, f => f.message.coordenaday, f => f.message.location
+                    , f => f.message.valorIntensidadSenial, f => f.message.rangoIntensidadSenial, f => f.message.velocidadBajada, f => f.message.rangoVelocidadBajada
+                    , f => f.message.velocidadSubida, f => f.message.rangoVelocidadSubida, f => f.message.latencia, f => f.message.rangoLatencia, f => f.message.timestamp_seconds)
+                )
+            );           
+
+            oSearch.Scroll(sTimeoutScroll);
+
+            var searchResponse = client.Search<CoberturaReport>(oSearch);
+
+            if (searchResponse != null && searchResponse.IsValid) {
+                while (searchResponse.Documents.Any())
+                {
+                    List<CoberturaReport> oListDocumentosRecibidos = searchResponse.Documents.ToList();
+                    List<DatosCobertura> oListDatosDevolver = new List<DatosCobertura>();
+
+                    if (oListDocumentosRecibidos.Count > 0)
+                    {
+                        foreach (CoberturaReport oReport in oListDocumentosRecibidos)
+                        {
+                            DatosCobertura oDatosReportesAPIPublica = new DatosCobertura();
+
+                            oDatosReportesAPIPublica.fecha = Helper.EpochSecondsToDateTime(oReport.message.timestamp_seconds);
+
+                            oDatosReportesAPIPublica.categoria = oReport.message.categoria;
+                            oDatosReportesAPIPublica.calidad = oReport.Calidad;
+                            oDatosReportesAPIPublica.municipio = oReport.message.municipio;
+                            oDatosReportesAPIPublica.ine = oReport.message.ine;
+                            oDatosReportesAPIPublica.modelo = oReport.message.modelo;
+                            oDatosReportesAPIPublica.so = oReport.message.so;
+                            oDatosReportesAPIPublica.tipoRed = oReport.message.tipoRed;
+                            oDatosReportesAPIPublica.operador = oReport.message.operador;
+
+                            oDatosReportesAPIPublica.coordenadaX = oReport.message.coordenadax;
+                            oDatosReportesAPIPublica.coordenadaY = oReport.message.coordenaday;
+                            oDatosReportesAPIPublica.latitud = oReport.message.location.lat;
+                            oDatosReportesAPIPublica.longitud = oReport.message.location.lon;
+
+                            oDatosReportesAPIPublica.valorIntensidadSenial = oReport.message.valorIntensidadSenial;
+                            oDatosReportesAPIPublica.rangoIntensidadSenial = oReport.message.rangoIntensidadSenial;
+                            oDatosReportesAPIPublica.velocidadBajada = oReport.message.velocidadBajada;
+                            oDatosReportesAPIPublica.rangoVelocidadBajada = oReport.message.rangoVelocidadBajada;
+                            oDatosReportesAPIPublica.velocidadSubida = oReport.message.velocidadSubida;
+                            oDatosReportesAPIPublica.rangoVelocidadSubida = oReport.message.rangoVelocidadSubida;
+                            oDatosReportesAPIPublica.latencia = oReport.message.latencia;
+                            oDatosReportesAPIPublica.rangoLatencia = oReport.message.rangoLatencia;
+
+                            //oDatosReportesAPIPublica.velocidadBajada = oReport.message.velocidadBajada.HasValue ? oReport.message.velocidadBajada.Value.ToString("0.##") + " Mbps" : string.Empty;
+
+                            oListDatosDevolver.Add(oDatosReportesAPIPublica);
+                        }
+
+                        oResponse.documents.AddRange(oListDatosDevolver);
+                    }
+
+                    searchResponse = client.Scroll<CoberturaReport>(sTimeoutScroll, searchResponse.ScrollId);
+                }
+            }
+
+            oResponse.documents = oResponse.documents.OrderByDescending(x => x.fecha).ToList();
+
+            return oResponse;
+        }
+
+        
+        public async Task<bool> AjustarTipoRed(string sMappingProperty = null)
+        {
+
+            string sIndexName = GetIndexNameForType("CoberturaReport");
+
+            if (!string.IsNullOrEmpty(sMappingProperty))
+            {
+                sIndexName = GetIndexNameForType(sMappingProperty);
+            }
+
+            ElasticClient client = CreateClient();
+
+            AggregationDictionary oAgregadoNested = new AggregationDictionary
+            {
+                {
+                    "arrTipoRed",
+                    new TermsAggregation("arrTipoRed")
+                    {
+                        Field = "message.tipoRed.keyword"
+                    }
+                }
+            };
+
+            AggregationDictionary oAgregadoPrincipal = null;
+            Field oFieldKeyAgrupar = new Nest.Field("message.agrupado_cuadricula_fecha.keyword");
+
+            oAgregadoPrincipal = new AggregationDictionary
+                {
+                    {
+                        "agregado",
+                        new TermsAggregation("agregado")
+                        {
+                            Field = oFieldKeyAgrupar,
+                            Aggregations = oAgregadoNested,
+                            Size = 150000
+                        }
+                    }
+                };
+
+            ISearchResponse<CoberturaReport> response = null;
+            Field oFieldKeyCategoria = new Nest.Field("message.categoria.keyword");
+            Field oFieldModelo = new Nest.Field("message.modelo.keyword");
+            Field oFieldTipoRed = new Nest.Field("message.tipoRed.keyword");
+
+
+            List<string> sListTiposRedModificar = new List<string>();
+            sListTiposRedModificar.Add("2G");
+            sListTiposRedModificar.Add("3G");
+            sListTiposRedModificar.Add("4G");
+            sListTiposRedModificar.Add("5G");
+
+            response = await client.SearchAsync<CoberturaReport>(s => s.Index(sIndexName)
+                 .Query(q => q
+                    .Bool(b => b.MustNot(mt => mt.Exists(ex => ex.Field(oFieldModelo)))
+                        .Must( m =>
+                                new TermQuery()
+                                {
+                                    Field = oFieldKeyCategoria,
+                                    Value = "RED MOVIL"
+                                }, 
+                                m=>
+                                new TermsQuery()
+                                {
+                                    Field = oFieldTipoRed,
+                                    Terms = sListTiposRedModificar.ToArray()
+                                }
+                            )
+                        )
+                    )
+                .Take(0) //para traer solo los agregados
+                .Aggregations(oAgregadoPrincipal)
+            );
+
+            if (response != null && response.IsValid)
+            {
+                Dictionary<string, List<string>> oDictionary = new Dictionary<string, List<string>>();
+
+                if (response.Aggregations.Count > 0 && response.Aggregations["agregado"] != null)
+                {
+                    var responseAggs = response.Aggregations.Terms("agregado");
+
+                    foreach (var childAgg in responseAggs.Buckets)
+                    {
+                        Nest.BucketAggregate vaArrTipoRed = (Nest.BucketAggregate)childAgg.Where(x => x.Key == "arrTipoRed").Select(x => x.Value).FirstOrDefault();
+
+                        List<string> sListTiposRed = new List<string>();
+
+                        if (vaArrTipoRed != null && vaArrTipoRed.Items.Count > 0)
+                        {
+                            foreach (var tipoRedbucket in vaArrTipoRed.Items)
+                            {
+                                string sTipoRed = ((KeyedBucket<object>)tipoRedbucket).Key.ToString();
+
+                                if (!string.IsNullOrEmpty(sTipoRed))
+                                {
+                                    if (!sListTiposRed.Contains(sTipoRed))
+                                    {
+                                        sListTiposRed.Add(sTipoRed);
+                                    }
+                                }
+                            }
+                        }
+
+                        sListTiposRed = sListTiposRed.OrderBy(x => x).ToList();
+
+                        oDictionary.Add(childAgg.Key, sListTiposRed);
+                    }
+                }
+
+                if (oDictionary.Count > 0) {
+
+                    foreach (KeyValuePair<string, List<string>> oEntry in oDictionary)
+                    {
+                        if (!string.IsNullOrEmpty(oEntry.Key) && oEntry.Value != null && oEntry.Value.Count > 0) {
+                            string key = oEntry.Key;
+                            string sValue = String.Join(", ", oEntry.Value);
+
+                            var updateResponse = await client.UpdateByQueryAsync<CoberturaReport>(uq => uq
+                                .Index(sIndexName)
+                                .Script(s => s
+                                    .Source("ctx._source.message.tipoRedAux = '" + sValue + "'")
+                                 )
+                                .Query(q => q
+                                    .Bool(b => b.MustNot(mt => mt.Exists(ex => ex.Field(oFieldModelo)))
+                                        .Must(m =>
+                                               new TermQuery()
+                                               {
+                                                   Field = oFieldKeyAgrupar,
+                                                   Value = key
+                                               },
+                                               m =>
+                                                new TermQuery()
+                                                {
+                                                    Field = oFieldKeyCategoria,
+                                                    Value = "RED MOVIL"
+                                                },
+                                                m =>
+                                                new TermsQuery()
+                                                {
+                                                    Field = oFieldTipoRed,
+                                                    Terms = sListTiposRedModificar.ToArray()
+                                                }
+                                            )
+                                        )
+                                    )
+                            );
+                        }
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+
+            return true;
+        }
+
+        }
 }
