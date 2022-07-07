@@ -157,7 +157,9 @@ namespace ws_cobertura.RabbitMQ
                     oLocation.InverseReproject((double) oReport.message.coordenadax, (double) oReport.message.coordenaday);
 
                     oReport.message.location.lat = oLocation.geo_x;
+                    oReport.message.geoLat = oLocation.geo_x;
                     oReport.message.location.lon = oLocation.geo_y;
+                    oReport.message.geoLon = oLocation.geo_y;
 
                     //para datos tooltip formateados
                     oReport.Categoria = oReport.message.categoria;

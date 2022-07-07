@@ -330,8 +330,6 @@ namespace ws_cobertura
             {
                 if (dValor.HasValue)
                 {
-                    int iValor = (int)dValor;
-
                     /*if (sCategoria == Constantes.RED_CABLEADA)
                     {
                         if (iValor < 20)
@@ -381,38 +379,39 @@ namespace ws_cobertura
 
                     if (sCategoria == Constantes.RED_CABLEADA)
                     {
-                        if (iValor < 30)
+                        if (dValor.Value < 30)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.Baja;
                         }
-                        else if (iValor < 100)
+                        else if (dValor.Value < 100)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.Media;
                         }
-                        else if (iValor < 300)
+                        else if (dValor.Value < 300)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.Alta;
                         }
-                        else if (iValor >= 300)
+                        else if (dValor.Value >= 300)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.MuyAlta;
                         }
+
                     }
                     else // por defecto umbral de red movil
                     {
-                        if (iValor < 1)
+                        if (dValor.Value < 1)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.Baja;
                         }
-                        else if (iValor < 5)
+                        else if (dValor.Value < 5)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.Media;
                         }
-                        else if (iValor < 30)
+                        else if (dValor.Value < 30)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.Alta;
                         }
-                        else if (iValor >= 30)
+                        else if (dValor.Value >= 30)
                         {
                             oEnumRango = EnumRango.VelocidadBajada.MuyAlta;
                         }
@@ -439,8 +438,6 @@ namespace ws_cobertura
             {
                 if (dValor.HasValue)
                 {
-                    int iValor = (int)dValor;
-
                     /*if (sCategoria == Constantes.RED_CABLEADA)
                     {
                         if (iValor < 1)
@@ -490,38 +487,38 @@ namespace ws_cobertura
 
                     if (sCategoria == Constantes.RED_CABLEADA)
                     {
-                        if (iValor < 30)
+                        if (dValor.Value < 30)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.Baja;
                         }
-                        else if (iValor < 100)
+                        else if (dValor.Value < 100)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.Media;
                         }
-                        else if (iValor < 300)
+                        else if (dValor.Value < 300)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.Alta;
                         }
-                        else if (iValor >= 300)
+                        else if (dValor.Value >= 300)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.MuyAlta;
                         }
                     }
                     else // por defecto umbral de red movil
                     {
-                        if (iValor < 0.5)
+                        if (dValor.Value < 0.5M)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.Baja;
                         }
-                        else if (iValor < 3)
+                        else if (dValor.Value < 3)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.Media;
                         }
-                        else if (iValor < 10)
+                        else if (dValor.Value < 10)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.Alta;
                         }
-                        else if (iValor >= 10)
+                        else if (dValor.Value >= 10)
                         {
                             oEnumRango = EnumRango.VelocidadSubida.MuyAlta;
                         }
@@ -547,51 +544,49 @@ namespace ws_cobertura
             try
             {
                 if (dValor.HasValue)
-                {
-                    int iValor = (int)dValor;    
-                    
+                {                    
                     if (sCategoria == Constantes.RED_CABLEADA)
                     {
-                        if (iValor < 20)
+                        if (dValor.Value < 20)
                         {
                             oEnumRango = EnumRango.Latencia.MuyBaja;
                         }
-                        else if (iValor < 60)
+                        else if (dValor.Value < 60)
                         {
                             oEnumRango = EnumRango.Latencia.Baja;
                         }
-                        else if (iValor < 100)
+                        else if (dValor.Value < 100)
                         {
                             oEnumRango = EnumRango.Latencia.Media;
                         }
-                        else if (iValor < 250)
+                        else if (dValor.Value < 250)
                         {
                             oEnumRango = EnumRango.Latencia.Alta;
                         }
-                        else if (iValor >= 250)
+                        else if (dValor.Value >= 250)
                         {
                             oEnumRango = EnumRango.Latencia.MuyAlta;
                         }
                     }
                     else // por defecto umbral de red movil
                     {
-                        if (iValor < 35)
+                        if (dValor.Value < 35)
                         {
                             oEnumRango = EnumRango.Latencia.MuyBaja;
                         }
-                        else if (iValor < 60)
+                        else if (dValor.Value < 60)
                         {
                             oEnumRango = EnumRango.Latencia.Baja;
                         }
-                        else if (iValor < 100)
+                        else if (dValor.Value < 100)
                         {
                             oEnumRango = EnumRango.Latencia.Media;
                         }
-                        else if (iValor < 250)
+                        else if (dValor.Value < 250)
                         {
                             oEnumRango = EnumRango.Latencia.Alta;
                         }
-                        else if (iValor >= 250)
+                        else if (dValor.Value >= 250)
                         {
                             oEnumRango = EnumRango.Latencia.MuyAlta;
                         }

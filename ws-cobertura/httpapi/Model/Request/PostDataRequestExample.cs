@@ -19,7 +19,8 @@ namespace ws_cobertura.httpapi.Model.Request
                     ["fechaDesde"] = new OpenApiString("20/03/2022 00:01:00"),
                     ["fechaHasta"] = new OpenApiString("20/04/2022 00:01:00"),
                     ["municipio"] = new OpenApiString(""),
-                    ["ine"] = new OpenApiString("")
+                    ["ine"] = new OpenApiString(""),
+                    ["categoria"] = new OpenApiString("")
                 };
             }
         }

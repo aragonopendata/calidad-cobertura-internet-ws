@@ -5,6 +5,7 @@ using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using ws_cobertura.httpapi.Model.General;
 using ws_cobertura.httpapi.Model.Response;
@@ -1117,7 +1118,7 @@ namespace ws_cobertura.ElasticSearch
         }
 
 
-        public ReportesFiltradosResponse ObtenerReportesFiltrados(string sIndexMappingNameBuscar, DateTime? dFechaDesde, DateTime? dFechaHasta, string sMunicipio, string sCodigoINE) {
+        public ReportesFiltradosResponse ObtenerReportesFiltrados(string sIndexMappingNameBuscar, DateTime? dFechaDesde, DateTime? dFechaHasta, string sMunicipio, string sCodigoINE, string sCategoria, string sOperador, decimal? dLatitudDesde, decimal? dLatitudHasta, decimal? dLongitudDesde, decimal? dLongitudHasta) {
 
             ReportesFiltradosResponse oResponse = new ReportesFiltradosResponse();
 
@@ -1166,21 +1167,100 @@ namespace ws_cobertura.ElasticSearch
                 oListQueryContainerDescriptor.Add(oQueryContainerDescriptor);
             }
 
+            if (dLatitudDesde.HasValue || dLatitudHasta.HasValue)
+            {
+                Field oFieldKey = new Nest.Field("message.geoLat");
+
+                NumericRangeQuery oRangeQuery = new NumericRangeQuery();
+
+                oRangeQuery.Field = oFieldKey;
+
+                if (dLatitudDesde.HasValue)
+                {
+                    oRangeQuery.GreaterThanOrEqualTo = Decimal.ToDouble(dLatitudDesde.Value);
+                }
+
+                if (dLatitudHasta.HasValue)
+                {
+                    oRangeQuery.LessThanOrEqualTo = Decimal.ToDouble(dLatitudHasta.Value);
+                }
+
+                QueryContainerDescriptor<DatosCobertura> oQueryContainerDescriptor = new QueryContainerDescriptor<DatosCobertura>();
+
+                oQueryContainerDescriptor.Range(dr => oRangeQuery);
+
+                oListQueryContainerDescriptor.Add(oQueryContainerDescriptor);
+            }
+
+            if (dLongitudDesde.HasValue || dLongitudHasta.HasValue)
+            {
+                Field oFieldKey = new Nest.Field("message.geoLon");
+
+                NumericRangeQuery oRangeQuery = new NumericRangeQuery();
+
+                oRangeQuery.Field = oFieldKey;
+
+                if (dLongitudDesde.HasValue)
+                {
+                    oRangeQuery.GreaterThanOrEqualTo = Decimal.ToDouble(dLongitudDesde.Value);
+                }
+
+                if (dLongitudHasta.HasValue)
+                {
+                    oRangeQuery.LessThanOrEqualTo = Decimal.ToDouble(dLongitudHasta.Value);
+                }
+
+                QueryContainerDescriptor<DatosCobertura> oQueryContainerDescriptor = new QueryContainerDescriptor<DatosCobertura>();
+
+                oQueryContainerDescriptor.Range(dr => oRangeQuery);
+
+                oListQueryContainerDescriptor.Add(oQueryContainerDescriptor);
+            }
+
             if (!string.IsNullOrEmpty(sMunicipio))
             {
+                //para buscar por palabras separadas, ya que al incluir el espacio no realiza la búsqueda correctamente
                 sMunicipio = sMunicipio.ToLower();
-                sMunicipio = sMunicipio.Replace("*", "");
-                sMunicipio = "*" + sMunicipio + "*";
 
                 Field oFieldKey = new Nest.Field("message.municipio");
 
-                QueryContainer oQueryContainer = new QueryContainer(new WildcardQuery()
+                List<string> sListPalabrasComprobar = sMunicipio.Split(" ").ToList();
+
+                foreach (string sPalabraComprobar in sListPalabrasComprobar) {
+                    string sPalabra = sPalabraComprobar.Replace("*", "");
+                    sPalabra = "*" + sPalabra + "*";
+
+                    QueryContainer oQueryContainer = new QueryContainer(new WildcardQuery()
+                    {
+                        Field = oFieldKey,
+                        Value = sPalabra
+                    });
+
+                    oListQueryContainer.Add(oQueryContainer);
+                }                
+
+
+                /*sMunicipio = sMunicipio.ToLower();
+
+                Field oFieldKey = new Nest.Field("message.municipio");
+
+                QueryContainer oQueryContainer = new QueryContainer(new MatchQuery()
                 {
                     Field = oFieldKey,
-                    Value = sMunicipio
+                    Query = sMunicipio,
+                    Analyzer = "standard",
+                    Boost = 1.1,
+                    Name = "municipioQuery",
+                    Fuzziness = Fuzziness.AutoLength(3, 6),
+                    FuzzyTranspositions = true,
+                    MinimumShouldMatch = 2,
+                    FuzzyRewrite = MultiTermQueryRewrite.TopTermsBlendedFreqs(10),
+                    Lenient = true,
+                    Operator = Operator.Or,
+                    AutoGenerateSynonymsPhraseQuery = false
                 });
 
-                oListQueryContainer.Add(oQueryContainer);
+                oListQueryContainer.Add(oQueryContainer);*/
             }
 
             if (!string.IsNullOrEmpty(sCodigoINE))
@@ -1196,6 +1276,52 @@ namespace ws_cobertura.ElasticSearch
                 });
 
                 oListQueryContainer.Add(oQueryContainer);
+            }
+
+            if (!string.IsNullOrEmpty(sCategoria))
+            {
+                sCategoria = sCategoria.ToLower();
+
+                Field oFieldKey = new Nest.Field("Categoria");
+
+                List<string> sListPalabrasComprobar = sCategoria.Split(" ").ToList();
+
+                foreach (string sPalabraComprobar in sListPalabrasComprobar)
+                {
+                    string sPalabra = sPalabraComprobar.Replace("*", "");
+                    sPalabra = "*" + sPalabra + "*";
+
+                    QueryContainer oQueryContainer = new QueryContainer(new WildcardQuery()
+                    {
+                        Field = oFieldKey,
+                        Value = sPalabra
+                    });
+
+                    oListQueryContainer.Add(oQueryContainer);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(sOperador))
+            {
+                sOperador = sOperador.ToLower();
+
+                Field oFieldKey = new Nest.Field("message.operador");
+
+                List<string> sListPalabrasComprobar = sOperador.Split(" ").ToList();
+
+                foreach (string sPalabraComprobar in sListPalabrasComprobar)
+                {
+                    string sPalabra = sPalabraComprobar.Replace("*", "");
+                    sPalabra = "*" + sPalabra + "*";
+
+                    QueryContainer oQueryContainer = new QueryContainer(new WildcardQuery()
+                    {
+                        Field = oFieldKey,
+                        Value = sPalabra
+                    });
+
+                    oListQueryContainer.Add(oQueryContainer);
+                }
             }
 
             BoolQueryDescriptor<DatosCobertura> oBoolQueryDescriptor = null;
@@ -1230,7 +1356,7 @@ namespace ws_cobertura.ElasticSearch
             oSearch.Source(sf => sf
                 .Includes(i => i
                     .Fields(f => f.message.categoria, f => f.Calidad, f => f.message.municipio, f => f.message.ine, f => f.message.modelo, f => f.message.so
-                    , f => f.message.tipoRed, f => f.message.operador, f => f.message.coordenadax, f => f.message.coordenaday, f => f.message.location
+                    , f => f.message.tipoRed, f => f.message.operador, f => f.message.coordenadax, f => f.message.coordenaday, f => f.message.location  
                     , f => f.message.valorIntensidadSenial, f => f.message.rangoIntensidadSenial, f => f.message.velocidadBajada, f => f.message.rangoVelocidadBajada
                     , f => f.message.velocidadSubida, f => f.message.rangoVelocidadSubida, f => f.message.latencia, f => f.message.rangoLatencia, f => f.message.timestamp_seconds)
                 )

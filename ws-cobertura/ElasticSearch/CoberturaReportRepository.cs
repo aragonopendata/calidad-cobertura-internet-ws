@@ -243,7 +243,7 @@ namespace ws_cobertura.ElasticSearch
             return bResult;
         }
 
-        public async Task<ReportesFiltradosResponse> ObtenerReportesFiltrados(DateTime? dFechaDesde, DateTime? dFechaHasta, string sMunicipio, string sCodigoINE) {
+        public async Task<ReportesFiltradosResponse> ObtenerReportesFiltrados(DateTime? dFechaDesde, DateTime? dFechaHasta, string sMunicipio, string sCodigoINE, string sCategoria, string sOperador, decimal? dLatitudDesde, decimal? dLatitudHasta, decimal? dLongitudDesde, decimal? dLongitudHasta) {
             ReportesFiltradosResponse oResponse = new ReportesFiltradosResponse();
 
             string sIndexMapping = "CoberturaReport";
@@ -251,7 +251,7 @@ namespace ws_cobertura.ElasticSearch
             try
             {
 
-                oResponse = _esCoberturaHelper.ObtenerReportesFiltrados(sIndexMapping, dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE);
+                oResponse = _esCoberturaHelper.ObtenerReportesFiltrados(sIndexMapping, dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE, sCategoria, sOperador, dLatitudDesde, dLatitudHasta, dLongitudDesde, dLongitudHasta);
 
             }
             catch (Exception ex)

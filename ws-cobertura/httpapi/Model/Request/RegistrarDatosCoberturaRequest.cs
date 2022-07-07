@@ -48,5 +48,8 @@ namespace ws_cobertura.httpapi.Model.Request
         public string latencia { get; set; }// Latencia(ping) en un test de velocidad que realiza el usuario con su dispositivo durante la captura.
         [JsonPropertyName("categoria")]
         public string categoria { get; set; } // indica si la red es tipo CABLEADA o RED MOVIL
+        [JsonPropertyName("ubicacionManual")]
+        public bool? ubicacionManual { get; set; } // indica si la posición ha sido introducida manualmente
+        
     }
 }

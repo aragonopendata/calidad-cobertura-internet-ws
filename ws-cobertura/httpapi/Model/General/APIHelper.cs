@@ -67,6 +67,9 @@ namespace ws_cobertura.httpapi.Model.General
             sTipoRed = normalizarTipoRed(sTipoRed);
 
             CoberturaMessage oCoberturaMessage = new CoberturaMessage();
+
+            oCoberturaMessage.propuesto_para_revision = requiereRevision(oRequest);
+
             oCoberturaMessage.timestamp = sTimeStamp;
 
             if (!string.IsNullOrEmpty(sCoordenadax)) {
@@ -781,6 +784,25 @@ namespace ws_cobertura.httpapi.Model.General
 
             return true;
         }
+
+        public bool? requiereRevision(RegistrarDatosCoberturaRequest oRequest) {
+
+            bool? bRequiereRevision = null;
+
+
+            /*if (!string.IsNullOrEmpty(oRequest.ubicacionManual)) {
+                if (oRequest.ubicacionManual.ToLower() == "true" || oRequest.ubicacionManual.ToLower() == "1") {
+                    bRequiereRevision = true;
+                }
+            }*/
+            if (oRequest.ubicacionManual.HasValue && oRequest.ubicacionManual.Value == true)
+            {
+                bRequiereRevision = true;
+            }
+
+            return bRequiereRevision;
+
+        }   
 
     }
 }

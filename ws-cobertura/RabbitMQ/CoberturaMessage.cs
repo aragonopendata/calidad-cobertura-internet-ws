@@ -103,7 +103,13 @@ namespace ws_cobertura.RabbitMQ
         [JsonPropertyName("location")]
         public CoberturaMessageLocation location { get; set; }// Mensaje agrupado con los campos claves para el indice por coordenadas y tecnologia
 
+        [JsonPropertyName("geoLat")]
+        public double geoLat { get; set; }// latitud
+        [JsonPropertyName("geoLon")]
+        public double geoLon { get; set; }// longitud
 
+        [JsonPropertyName("propuesto_para_revision")]
+        public bool? propuesto_para_revision { get; set; }
 
         public CoberturaMessage()
         {

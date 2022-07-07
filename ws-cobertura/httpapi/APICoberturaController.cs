@@ -359,12 +359,18 @@ namespace ws_cobertura.httpapi
         /// <param name="fechaHasta"> Formato dd/MM/yyyy HH:mm:ss</param>
         /// <param name="municipio"> Contiene</param>
         /// <param name="ine"> Comienza por</param>
+        /// <param name="categoria"> Contiene</param>
+        /// <param name="operador"> Contiene</param>
+        /// <param name="latitudDesde"> Latitud desde</param>
+        /// <param name="latitudHasta"> Latitud hasta</param>
+        /// <param name="longitudDesde"> Longitud desde</param>
+        /// <param name="longitudHasta"> Longitud hasta</param>
         /// <returns></returns>
         [HttpGet]
         [Route("data/getData")]
         [ApiExplorerSettings(GroupName = "API Cobertura")]
         [Produces("application/json", "application/xml", "application/yaml", "application/xlsx", "text/csv", Type = typeof(string))]
-        public async Task<IActionResult> getData([FromQuery] string fechaDesde, [FromQuery] string fechaHasta, [FromQuery] string municipio, [FromQuery] string ine)
+        public async Task<IActionResult> getData([FromQuery] string fechaDesde, [FromQuery] string fechaHasta, [FromQuery] string municipio, [FromQuery] string ine, [FromQuery] string categoria, [FromQuery] string operador, [FromQuery] string latitudDesde, [FromQuery] string latitudHasta, [FromQuery] string longitudDesde, [FromQuery] string longitudHasta)
         {
             try
             {
@@ -414,21 +420,49 @@ namespace ws_cobertura.httpapi
                 DateTime? dFechaDesde = null;
                 DateTime? dFechaHasta = null;
 
+                decimal? dLatitudDesde = null;
+                decimal? dLatitudHasta = null;
+                decimal? dLongitudDesde = null;
+                decimal? dLongitudHasta = null;
+
                 string sMunicipio = string.Empty;
                 string sCodigoINE = string.Empty;
+                string sCategoria = string.Empty;
+                string sOperador = string.Empty;
+
+                System.Globalization.CultureInfo cultureinfo = new System.Globalization.CultureInfo("es-ES");
 
                 if (!string.IsNullOrEmpty(fechaDesde))
                 {
-                    dFechaDesde = DateTime.Parse(fechaDesde); // dd/MM/yyyy HH:mm:ss
+                    dFechaDesde = DateTime.Parse(fechaDesde, cultureinfo); // dd/MM/yyyy HH:mm:ss
                 }
 
                 if (!string.IsNullOrEmpty(fechaHasta))
                 {
-                    dFechaHasta = DateTime.Parse(fechaHasta); // dd/MM/yyyy HH:mm:ss
+                    dFechaHasta = DateTime.Parse(fechaHasta, cultureinfo); // dd/MM/yyyy HH:mm:ss
+                }
+
+                if (!string.IsNullOrEmpty(latitudDesde))
+                {
+                    dLatitudDesde = Decimal.Parse(latitudDesde, CultureInfo.InvariantCulture);
+                }
+                if (!string.IsNullOrEmpty(latitudHasta))
+                {
+                    dLatitudHasta = Decimal.Parse(latitudHasta, CultureInfo.InvariantCulture); 
+                }
+                if (!string.IsNullOrEmpty(longitudDesde))
+                {
+                    dLongitudDesde = Decimal.Parse(longitudDesde, CultureInfo.InvariantCulture);
+                }
+                if (!string.IsNullOrEmpty(longitudHasta))
+                {
+                    dLongitudHasta = Decimal.Parse(longitudHasta, CultureInfo.InvariantCulture);
                 }
 
                 sMunicipio = municipio;
                 sCodigoINE = ine;
+                sCategoria = categoria;
+                sOperador = operador;
 
                 /*string sFormat = format;
 
@@ -457,7 +491,7 @@ namespace ws_cobertura.httpapi
                 }*/
 
 
-                ReportesFiltradosResponse oResponse = await _coberturaReportRepository.ObtenerReportesFiltrados(dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE);
+                ReportesFiltradosResponse oResponse = await _coberturaReportRepository.ObtenerReportesFiltrados(dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE, sCategoria, sOperador, dLatitudDesde, dLatitudHasta, dLongitudDesde, dLongitudHasta);
 
                 if (oResponse.documents == null)
                 {
@@ -542,8 +576,15 @@ namespace ws_cobertura.httpapi
                 DateTime? dFechaDesde = null;
                 DateTime? dFechaHasta = null;
 
+                decimal? dLatitudDesde = null;
+                decimal? dLatitudHasta = null;
+                decimal? dLongitudDesde = null;
+                decimal? dLongitudHasta = null;
+
                 string sMunicipio = string.Empty;
                 string sCodigoINE = string.Empty;
+                string sCategoria = string.Empty;
+                string sOperador = string.Empty;
 
                 if (!string.IsNullOrEmpty(oRequest.fechaDesde))
                 {
@@ -555,10 +596,32 @@ namespace ws_cobertura.httpapi
                     dFechaHasta = DateTime.Parse(oRequest.fechaHasta); // dd/MM/yyyy HH:mm:ss
                 }
 
+
+                if (!string.IsNullOrEmpty(oRequest.latitudDesde))
+                {
+                    dLatitudDesde = Decimal.Parse(oRequest.latitudDesde, CultureInfo.InvariantCulture);
+                }
+
+                if (!string.IsNullOrEmpty(oRequest.latitudHasta))
+                {
+                    dLatitudHasta = Decimal.Parse(oRequest.latitudHasta, CultureInfo.InvariantCulture);
+                }
+                if (!string.IsNullOrEmpty(oRequest.longitudDesde))
+                {
+                    dLongitudDesde = Decimal.Parse(oRequest.longitudDesde, CultureInfo.InvariantCulture);
+                }
+
+                if (!string.IsNullOrEmpty(oRequest.longitudHasta))
+                {
+                    dLongitudHasta = Decimal.Parse(oRequest.longitudHasta, CultureInfo.InvariantCulture); 
+                }
+
+                sCategoria = oRequest.categoria;
                 sMunicipio = oRequest.municipio;
                 sCodigoINE = oRequest.ine;
+                sOperador = oRequest.operador;
 
-                ReportesFiltradosResponse oResponse = await _coberturaReportRepository.ObtenerReportesFiltrados(dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE);
+                ReportesFiltradosResponse oResponse = await _coberturaReportRepository.ObtenerReportesFiltrados(dFechaDesde, dFechaHasta, sMunicipio, sCodigoINE, sCategoria, sOperador, dLatitudDesde, dLatitudHasta, dLongitudDesde, dLongitudHasta);
 
                 if (oResponse.documents == null)
                 {
