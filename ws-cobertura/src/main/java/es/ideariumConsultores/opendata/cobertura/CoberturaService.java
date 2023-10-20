@@ -3,6 +3,7 @@ package es.ideariumConsultores.opendata.cobertura;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Calendar;
 
 import javax.sql.DataSource;
 
@@ -173,10 +174,34 @@ public class CoberturaService {
 			 
 		}
 		log.debug("devuelvo correcto");
+		updateBest(medida);
 		updateCell(medida);
 		return "{\"estadoRespuesta\":1}";
 	}
 	
+	@Async
+	void updateBest(Medida medida) {
+		
+		try{
+			if (medida.getVelocidadBajada()!=null){
+				String anio = new Integer(medida.getTimestamp().get(Calendar.YEAR)).toString();
+				log.debug(anio+","+ medida.getIne()+","+ medida.getCategoria());
+				String best = medidaRepository.getTheBest(anio, medida.getIne(), medida.getCategoria());
+				String calidad = medidaRepository.getCalidad(medida.getVelocidadBajada(), medida.getCategoria());
+				if (best==null){
+					medidaRepository.insertBest(anio, medida.getIne(), medida.getCategoria(), calidad);
+				}
+				else if ( calidad.compareTo(best) > 0){
+					medidaRepository.updateBest(anio, medida.getIne(), medida.getCategoria(), calidad);
+				}
+				
+			}
+			}
+			catch(Exception ex){
+			log.error("No se ha podido actualizar la mejor medida por año, municipio y categoria ",ex);
+				 
+			}
+	}
 	@Async
 	void updateCell(Medida medida) {
 		try{

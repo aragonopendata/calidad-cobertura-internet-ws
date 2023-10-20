@@ -20,6 +20,17 @@ public interface MedidaRepository extends JpaRepository<Medida,Integer> {
 	    int updateCellRedMovil(@Param("coordenadax") int coordenadax,@Param("coordenaday") int coordenaday);
 
 	  @Modifying
+	    @Query(value = "update opendata_usr.vm_calidad_cobertura_best vm set calidad=:calidad where ine=:ine and categoria=:categoria and anno=:anno", nativeQuery = true)
+	    @Transactional
+	    int updateBest(@Param("anno") String anno,@Param("ine") int ine,@Param("categoria") String categoria,@Param("calidad") String calidad);
+
+	    @Query(value = "select calidad from opendata_usr.vm_calidad_cobertura_best vm where anno=:anno and categoria=:categoria and ine=:ine", nativeQuery = true)
+	    String getTheBest(@Param("anno") String anno,@Param("ine") int ine,@Param("categoria") String categoria);
+
+	    @Query(value = "select vb.id||' - '||vb.descripcion from codrangovelocidadbajada vb where calcularrangovelocidadbajada(:velocidadbajada, :categoria) = vb.id", nativeQuery = true)
+	    String getCalidad(@Param("velocidadbajada") double velocidad, @Param("categoria") String categoria);
+	    
+	  @Modifying
 	    @Query(value = "insert into opendata_usr.vm_calidad_cobertura_red_fija (coordenadax, coordenaday, municipios,categoria,num_medidas,desde,hasta,cuadricula,geom_25830,latencia,valorintensidadsenial,velocidadbajada,velocidadsubida,rangolatencia,rangointensidadsenial,rangovelocidadbajada,rangovelocidadsubida) select coordenadax, coordenaday, municipios, categoria,num_medidas,desde,hasta,cuadricula,geom_25830,latencia,valorintensidadsenial,velocidadbajada,velocidadsubida,rangolatencia,rangointensidadsenial,rangovelocidadbajada,rangovelocidadsubida from opendata_usr.v_calidad_cobertura_red_fija t where coordenadax=:coordenadax and coordenaday=:coordenaday", nativeQuery = true)
 	    @Transactional
 	    int insertCellRedFija(@Param("coordenadax") int coordenadax,@Param("coordenaday") int coordenaday);
@@ -28,4 +39,10 @@ public interface MedidaRepository extends JpaRepository<Medida,Integer> {
 	    @Query(value = "insert into opendata_usr.vm_calidad_cobertura_red_movil (coordenadax, coordenaday, municipios, categoria,num_medidas,desde,hasta,cuadricula,geom_25830,latencia,valorintensidadsenial,velocidadbajada,velocidadsubida,rangolatencia,rangointensidadsenial,rangovelocidadbajada,rangovelocidadsubida) select coordenadax, coordenaday, municipios, categoria,num_medidas,desde,hasta,cuadricula,geom_25830,latencia,valorintensidadsenial,velocidadbajada,velocidadsubida,rangolatencia,rangointensidadsenial,rangovelocidadbajada,rangovelocidadsubida from opendata_usr.v_calidad_cobertura_red_movil t where coordenadax=:coordenadax and coordenaday=:coordenaday", nativeQuery = true)
 	    @Transactional
 	    int insertCellRedMovil(@Param("coordenadax") int coordenadax,@Param("coordenaday") int coordenaday);
+
+	  @Modifying
+	    @Query(value = "insert into opendata_usr.vm_calidad_cobertura_best (ine, categoria,anno, calidad) VALUES (:ine,:categoria,:anno,:calidad)", nativeQuery = true)
+	    @Transactional
+	    int insertBest(@Param("anno") String anno,@Param("ine") int ine,@Param("categoria") String categoria,@Param("calidad") String calidad);
+
 }
