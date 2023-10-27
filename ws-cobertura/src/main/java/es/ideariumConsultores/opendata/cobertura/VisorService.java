@@ -147,9 +147,14 @@ public class VisorService {
 				}
 				resultado+="]";
 			}
-			rs_datos = stmt_datos.executeQuery("select campo_municipio from cyt_datos_origen where campo_municipio is not null and capa='"+rs.getString("layers")+"'");
+			rs_datos = stmt_datos.executeQuery("select campo_municipio, campo_anyo from cyt_datos_origen where  capa='"+rs.getString("layers")+"'");
+			rs_datos.next();
+			String campo_muni = rs_datos.getString("campo_municipio");
+			if (rs_datos.getString("campo_anyo")!=null){
+				resultado+=",\"campo_anyo\":\""+rs_datos.getString("campo_anyo")+"\"";
+			}
 			resultado+=",\"filtro_muni\":";
-			if (rs_datos.next()){
+			if (campo_muni!=null){
 				resultado+="true";
 
 			}

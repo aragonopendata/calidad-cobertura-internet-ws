@@ -1,5 +1,7 @@
 package es.ideariumConsultores.opendata.cobertura.repository;
 
+import java.util.Calendar;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,12 +22,12 @@ public interface MedidaRepository extends JpaRepository<Medida,Integer> {
 	    int updateCellRedMovil(@Param("coordenadax") int coordenadax,@Param("coordenaday") int coordenaday);
 
 	  @Modifying
-	    @Query(value = "update opendata_usr.vm_calidad_cobertura_best vm set calidad=:calidad where ine=:ine and categoria=:categoria and anno=:anno", nativeQuery = true)
+	    @Query(value = "update opendata_usr.vm_calidad_cobertura_best vm set calidad=:calidad , fecha=:fecha where ine=:ine and categoria=:categoria", nativeQuery = true)
 	    @Transactional
-	    int updateBest(@Param("anno") String anno,@Param("ine") int ine,@Param("categoria") String categoria,@Param("calidad") String calidad);
+	    int updateBest(@Param("fecha") Calendar fecha,@Param("ine") int ine,@Param("categoria") String categoria,@Param("calidad") String calidad);
 
-	    @Query(value = "select calidad from opendata_usr.vm_calidad_cobertura_best vm where anno=:anno and categoria=:categoria and ine=:ine", nativeQuery = true)
-	    String getTheBest(@Param("anno") String anno,@Param("ine") int ine,@Param("categoria") String categoria);
+	    @Query(value = "select calidad from opendata_usr.vm_calidad_cobertura_best vm where categoria=:categoria and ine=:ine", nativeQuery = true)
+	    String getTheBest(@Param("ine") int ine,@Param("categoria") String categoria);
 
 	    @Query(value = "select vb.id||' - '||vb.descripcion from codrangovelocidadbajada vb where calcularrangovelocidadbajada(:velocidadbajada, :categoria) = vb.id", nativeQuery = true)
 	    String getCalidad(@Param("velocidadbajada") double velocidad, @Param("categoria") String categoria);
@@ -41,8 +43,8 @@ public interface MedidaRepository extends JpaRepository<Medida,Integer> {
 	    int insertCellRedMovil(@Param("coordenadax") int coordenadax,@Param("coordenaday") int coordenaday);
 
 	  @Modifying
-	    @Query(value = "insert into opendata_usr.vm_calidad_cobertura_best (ine, categoria,anno, calidad) VALUES (:ine,:categoria,:anno,:calidad)", nativeQuery = true)
+	    @Query(value = "insert into opendata_usr.vm_calidad_cobertura_best (ine, categoria,fecha, calidad) VALUES (:ine,:categoria,:fecha,:calidad)", nativeQuery = true)
 	    @Transactional
-	    int insertBest(@Param("anno") String anno,@Param("ine") int ine,@Param("categoria") String categoria,@Param("calidad") String calidad);
+	    int insertBest(@Param("fecha") Calendar fecha,@Param("ine") int ine,@Param("categoria") String categoria,@Param("calidad") String calidad);
 
 }

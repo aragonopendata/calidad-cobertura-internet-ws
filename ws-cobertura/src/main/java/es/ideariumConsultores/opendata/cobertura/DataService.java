@@ -79,14 +79,14 @@ public class DataService {
 			Statement stmt=conn.createStatement();
 			ResultSet rs;
 			if (municipio!=null){
-				rs = stmt.executeQuery("SELECT * FROM v_cyt_resumen_municipios where c_muni_ine="+municipio+" order by orden");
+				rs = stmt.executeQuery("SELECT label FROM v_cyt_resumen_municipios where c_muni_ine="+municipio+" order by orden");
 			}
 			else{
-				rs = stmt.executeQuery("SELECT * FROM v_cyt_resumen_aragon order by orden");
+				rs = stmt.executeQuery("SELECT label FROM v_cyt_resumen_aragon order by orden");
 			}
 				out.append("[");
 				while (rs.next()){
-					out.append("{"+getAttributes(rs)+"}");
+					out.append("\""+rs.getString("label").replaceAll("\"", "\\\\\"")+"\"");
 					if (!rs.isLast()){
 						out.append(",");
 					}
