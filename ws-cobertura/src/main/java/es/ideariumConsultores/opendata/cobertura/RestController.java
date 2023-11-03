@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.ideariumConsultores.opendata.cobertura.model.Medida;
 
-@CrossOrigin(origins = {"http://localhost:8000","http://localhost", "https://opendataei2a.aragon.es", "https://desopendataei2a.aragon.es",
-		"https://opendata.aragon.es", "https://desopendata.aragon.es"})
+@CrossOrigin(origins = {"http://localhost:8000","http://localhost:4200","http://localhost", "https://opendataei2a.aragon.es", "https://desopendataei2a.aragon.es",
+		 "https://preopendataei2a.aragon.es","https://opendata.aragon.es", "https://desopendata.aragon.es", "https://preopendata.aragon.es"})
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
 
