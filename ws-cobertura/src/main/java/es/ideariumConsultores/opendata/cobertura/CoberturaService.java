@@ -59,7 +59,7 @@ public class CoberturaService {
 							",\"estadoRespuesta\":1}";
 							}
 			else{
-				return "{\"estadoRespuesta\":0,\"mensajeRespuesta\":\"No se encontraron coincidencias\"}";
+				return "{\"estadoRespuesta\":0,\"mensajeRespuesta\":\"No se encontraron conincidencias\"}";
 			}
 		}
 
