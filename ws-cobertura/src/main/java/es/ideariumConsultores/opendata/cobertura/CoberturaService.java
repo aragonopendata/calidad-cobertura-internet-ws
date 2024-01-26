@@ -89,8 +89,54 @@ public class CoberturaService {
         return new int[]{iCoordenadaXUTMAnonimizada,iCoordenadaYUTMAnonimizada};
     }
     
+    private String normalizarTipoRed(String sTipoRed) {
+
+
+        if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_WIMAX) ){
+            sTipoRed = Medida.CONEXION_WIMAX;
+        } 
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_WIFI))
+        {
+            sTipoRed = Medida.CONEXION_WIFI;
+        }
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_ETH))
+        {
+            sTipoRed = Medida.CONEXION_ETH;
+        }
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_MOBILE))
+        {
+            sTipoRed = Medida.CONEXION_MOBILE;
+        }
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_CELLULAR))
+        {
+            sTipoRed = Medida.CONEXION_MOBILE;
+        }
+        else if (sTipoRed.equalsIgnoreCase(Medida.CONEXION_2G) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_GSM) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_GPRS) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_EDGE))
+        {
+            sTipoRed = Medida.CONEXION_2G;
+        }
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_3G) || sTipoRed.equalsIgnoreCase(Medida.CONEXION_CDMA) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_UMTS) || sTipoRed.equalsIgnoreCase(Medida.CONEXION_HSPA)
+                 || sTipoRed.equalsIgnoreCase( Medida.CONEXION_HSUPA) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_HSDPA) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_1XRTT) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_EHRPD))
+        {
+            sTipoRed = Medida.CONEXION_3G;
+        }
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_4G) || sTipoRed.equalsIgnoreCase( Medida.CONEXION_LTE) || sTipoRed.equalsIgnoreCase(Medida.CONEXION_UMB) || sTipoRed.equalsIgnoreCase(Medida.CONEXION_HSPA_PLUS))
+        {
+            sTipoRed = Medida.CONEXION_4G;
+        }
+        else if (sTipoRed.equalsIgnoreCase( Medida.CONEXION_5G))
+        {
+            sTipoRed = Medida.CONEXION_5G;
+        }
+        
+        return sTipoRed;
+    }
+
 	protected Medida calcularValores(Medida medida){
-		if ((medida.getCategoria()==null) || (medida.getCategoria().trim().length()==0)  || (medida.getCategoria() != Medida.RED_CABLEADA && medida.getCategoria() != Medida.RED_MOVIL))
+		
+		  medida.setTipoRed(normalizarTipoRed(medida.getTipoRed()));
+		
+		if ((medida.getCategoria()==null) || (medida.getCategoria().trim().length()==0)  || (!medida.getCategoria().equalsIgnoreCase(Medida.RED_CABLEADA) && !medida.getCategoria().equalsIgnoreCase(Medida.RED_MOVIL)))
         {
 			medida.setCategoria(obtenerCategoria(medida.getSo(),medida.getModelo(),medida.getTipoRed()));
 			
@@ -102,7 +148,7 @@ public class CoberturaService {
          {
              medida.setLatencia(null);
          }
-	      
+	    
 	    
 	   
 		

@@ -51,8 +51,8 @@ public class DataService {
 					where+=rs.getString("campo_municipio")+"="+municipio;
 				}
 				Statement stmt_data=conn.createStatement();
-				log.debug("SELECT "+rs.getString("campos")+" FROM "+rs.getString("tabla")+(where.length()>0  ? " WHERE "+where:""));
-				ResultSet rs_data=stmt_data.executeQuery("SELECT "+rs.getString("campos")+" FROM "+rs.getString("tabla")+(where.length()>0 ? " WHERE "+where:""));
+				log.debug("SELECT "+rs.getString("campos")+" FROM "+rs.getString("tabla")+(where.length()>0  ? " WHERE "+where:"")+(rs.getString("orden")!=null ? " ORDER BY "+rs.getString("orden"):""));
+				ResultSet rs_data=stmt_data.executeQuery("SELECT "+rs.getString("campos")+" FROM "+rs.getString("tabla")+(where.length()>0 ? " WHERE "+where:"")+(rs.getString("orden")!=null ? " ORDER BY "+rs.getString("orden"):""));
 				out.append("[");
 				while (rs_data.next()){
 					out.append("{"+getAttributes(rs_data)+"}");
