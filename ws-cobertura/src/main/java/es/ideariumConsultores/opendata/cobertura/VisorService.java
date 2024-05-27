@@ -110,6 +110,17 @@ public class VisorService {
 
 
 	}
+	
+	protected String getAnyos(ResultSet rs_datos) throws Exception{
+		String resultado="";
+		while (rs_datos.next()){
+			resultado+=rs_datos.getInt("anyo");
+			if (!rs_datos.isLast()){
+				resultado+=",";
+			}
+		}
+		return resultado;
+	}
 	protected String getChildren(Connection conn,int grupo) throws Exception{
 		Statement stmt = null;//Objeto para la ejecucion de sentencias
 		ResultSet rs=null;
@@ -136,16 +147,17 @@ public class VisorService {
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs_datos=null;
 			if (!rs.wasNull()){
-
-				rs_datos = stmt_datos.executeQuery("select anyo from cyt_capas_anyos where capa='"+rs.getString("layers")+"' order by anyo");
-				resultado+=",\"anyos\":[";
-				while (rs_datos.next()){
-					resultado+=rs_datos.getInt("anyo");
-					if (!rs_datos.isLast()){
-						resultado+=",";
-					}
+				if (grupo==16){ //ambas redes
+					rs_datos = stmt_datos.executeQuery("select anyo from cyt_capas_anyos where capa='"+rs.getString("layers")+"' and red_fija order by anyo");
+					resultado+=",\"anyos_fija\":["+getAnyos(rs_datos)+"]";
+					rs_datos = stmt_datos.executeQuery("select anyo from cyt_capas_anyos where capa='"+rs.getString("layers")+"' and red_movil order by anyo");
+					resultado+=",\"anyos_movil\":["+getAnyos(rs_datos)+"]";
+					
 				}
-				resultado+="]";
+				else{
+					rs_datos = stmt_datos.executeQuery("select anyo,red_fija,red_movil from cyt_capas_anyos where capa='"+rs.getString("layers")+"' order by anyo");
+					resultado+=",\"anyos\":["+getAnyos(rs_datos)+"]";
+				}
 			}
 			rs_datos = stmt_datos.executeQuery("select campo_municipio, campo_anyo from cyt_datos_origen where  capa='"+rs.getString("layers")+"'");
 			rs_datos.next();
