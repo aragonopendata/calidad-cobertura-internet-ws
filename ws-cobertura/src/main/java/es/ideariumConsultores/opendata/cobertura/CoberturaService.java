@@ -70,6 +70,27 @@ public class CoberturaService {
 
 	}
 	
+	
+	public String obtenerDatosPorCoordenadas(String params) throws Exception{
+		log.debug(params);
+		
+		String municipio = obtenerMunicipioPorCoordenadas(params);
+		JsonObject datos = new JsonParser().parse(municipio).getAsJsonObject();
+		JsonObject input =  new JsonParser().parse(params).getAsJsonObject();
+		String categoria =  obtenerCategoria(input.get("sSO").getAsString(),input.get("sModelo").getAsString(),input.get("sTipoRed").getAsString());
+		datos.addProperty("categoriaRed", categoria);
+		double x = datos.get("coordenadax").getAsDouble();
+		double y = datos.get("coordenaday").getAsDouble();
+		if (categoria.equalsIgnoreCase(Medida.RED_MOVIL)){
+			datos.addProperty("cobertura", medidaRepository.getCalidadRedMovil(x,y));
+		}
+		else{
+			datos.addProperty("cobertura", medidaRepository.getCalidadRedFija(x,y));
+		}
+		return datos.toString();
+
+	}
+	
 	public String obtenerMunicipioPorCoordenadas(String latlon) throws Exception{
 		log.debug(latlon);
 		JsonObject coords = new JsonParser().parse(latlon).getAsJsonObject();

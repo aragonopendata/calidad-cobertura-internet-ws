@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.ideariumConsultores.opendata.cobertura.model.Medida;
 
-@CrossOrigin(origins = {"http://localhost:8000","http://localhost:4200","http://localhost","app://localhost", "https://opendataei2a.aragon.es", "https://desopendataei2a.aragon.es",
+@CrossOrigin(origins = {"http://localhost:8000","http://localhost:4200","https://localhost","http://localhost","app://localhost", "https://opendataei2a.aragon.es", "https://desopendataei2a.aragon.es",
 		 "https://preopendataei2a.aragon.es","https://opendata.aragon.es", "https://desopendata.aragon.es", "https://preopendata.aragon.es"})
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
@@ -69,6 +69,20 @@ public class RestController {
     	}
     	
     }
+    
+    @RequestMapping(value={"/api/obtenerDatosPorCoordenadas"}, method = { RequestMethod.GET, RequestMethod.POST }, produces = "text/plain")
+    public ResponseEntity obtenerDatosPorCoordenadas(@RequestBody String datos){
+    	try{
+    		
+    		return ResponseEntity.status(OK).body(cobertura.obtenerDatosPorCoordenadas(datos));
+    	}
+    	catch(Exception ex){
+    		log.info("error", ex);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    	}
+    	
+    }
+    
     @RequestMapping(value={"/api/registrarDatosCobertura"}, method = { RequestMethod.GET, RequestMethod.POST }, produces = "text/plain")
     public ResponseEntity registrarDatosCobertura(@RequestBody Medida medida ){
     	try{
