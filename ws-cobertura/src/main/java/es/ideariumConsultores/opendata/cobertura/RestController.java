@@ -83,6 +83,18 @@ public class RestController {
     	
     }
     
+    @RequestMapping(value={"/api/obtenerCalidadCobertura"}, method = { RequestMethod.GET, RequestMethod.POST }, produces = "text/plain")
+    public ResponseEntity obtenerCalidadCobertura(@RequestParam(value = "categoria",required = true) String categoria,@RequestParam(value = "velBajada",required = true) Double vel_bajada){
+    	try{
+    		
+    		return ResponseEntity.status(OK).body(cobertura.obtenerCalidadCobertura(categoria,vel_bajada));
+    	}
+    	catch(Exception ex){
+    		log.info("error", ex);
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    	}
+    	
+    }
     @RequestMapping(value={"/api/registrarDatosCobertura"}, method = { RequestMethod.GET, RequestMethod.POST }, produces = "text/plain")
     public ResponseEntity registrarDatosCobertura(@RequestBody Medida medida ){
     	try{

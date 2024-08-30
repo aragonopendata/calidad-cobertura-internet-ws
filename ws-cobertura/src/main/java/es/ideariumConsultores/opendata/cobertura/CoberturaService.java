@@ -1,6 +1,7 @@
 package es.ideariumConsultores.opendata.cobertura;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Calendar;
@@ -88,6 +89,25 @@ public class CoberturaService {
 			datos.addProperty("cobertura", medidaRepository.getCalidadRedFija(x,y));
 		}
 		return datos.toString();
+
+	}
+	
+	public String obtenerCalidadCobertura(String categoria, Double velocidad_bajada) throws Exception{
+		Connection conn = dataSource.getConnection();
+		String calidad="Desconocida";
+		try{
+			PreparedStatement stmt=conn.prepareStatement("SELECT  m.rangovelocidadbajada || ' - '::text || c.descripcion::text AS calidad from (select calcularrangovelocidadbajada(?,?) as rangovelocidadbajada) m LEFT JOIN codrangovelocidadbajada c ON m.rangovelocidadbajada = c.id;");
+			stmt.setDouble(1,velocidad_bajada);
+			stmt.setString(2,categoria);
+			
+			ResultSet rs = stmt.executeQuery();
+			rs.next();
+			calidad = rs.getString("calidad");
+		}
+		finally{
+			conn.close();
+		}
+		return calidad;
 
 	}
 	
