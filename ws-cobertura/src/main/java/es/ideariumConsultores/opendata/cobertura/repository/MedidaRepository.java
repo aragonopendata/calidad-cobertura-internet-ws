@@ -32,6 +32,12 @@ public interface MedidaRepository extends JpaRepository<Medida,Integer> {
 	    @Query(value = "select vb.id||' - '||vb.descripcion from codrangovelocidadbajada vb where calcularrangovelocidadbajada(:velocidadbajada, :categoria) = vb.id", nativeQuery = true)
 	    String getCalidad(@Param("velocidadbajada") double velocidad, @Param("categoria") String categoria);
 	    
+	    @Query(value = "select calidad from v_calidad_cobertura_red_fija_info where  coordenadax=:x and  coordenaday=:y", nativeQuery = true)
+	    String getCalidadRedFija(@Param("x") double x,@Param("y") double y);
+	    
+	    @Query(value = "select calidad from v_calidad_cobertura_red_movil_info where coordenadax=:x and  coordenaday=:y", nativeQuery = true)
+	    String getCalidadRedMovil(@Param("x") double x,@Param("y") double y);
+	    
 	  @Modifying
 	    @Query(value = "insert into opendata_usr.vm_calidad_cobertura_red_fija (coordenadax, coordenaday, municipios,categoria,num_medidas,desde,hasta,cuadricula,geom_25830,latencia,valorintensidadsenial,velocidadbajada,velocidadsubida,rangolatencia,rangointensidadsenial,rangovelocidadbajada,rangovelocidadsubida) select coordenadax, coordenaday, municipios, categoria,num_medidas,desde,hasta,cuadricula,geom_25830,latencia,valorintensidadsenial,velocidadbajada,velocidadsubida,rangolatencia,rangointensidadsenial,rangovelocidadbajada,rangovelocidadsubida from opendata_usr.v_calidad_cobertura_red_fija t where coordenadax=:coordenadax and coordenaday=:coordenaday", nativeQuery = true)
 	    @Transactional

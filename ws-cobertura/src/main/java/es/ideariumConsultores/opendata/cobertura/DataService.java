@@ -112,7 +112,7 @@ public class DataService {
 					datos+=",";
 				}
 
-				datos+="\""+md.getColumnName(i)+"\":\""+val.replaceAll("\"","\\\\\"").replaceAll("\r\n"," ").replaceAll("\n"," ").replaceAll("\r"," ").trim()+"\"";
+				datos+="\""+md.getColumnName(i)+"\":\""+val.replaceAll("\r\n"," ").replaceAll("\n"," ").replaceAll("\r"," ").replaceAll("\\\\","\\\\\\\\").replaceAll("\"","\\\\\"").trim()+"\"";
 				primero=false;
 			}
 		}			

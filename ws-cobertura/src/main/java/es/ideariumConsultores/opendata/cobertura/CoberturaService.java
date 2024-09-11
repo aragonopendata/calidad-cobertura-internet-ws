@@ -1,6 +1,7 @@
 package es.ideariumConsultores.opendata.cobertura;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Calendar;
@@ -67,6 +68,46 @@ public class CoberturaService {
 			con.close();
 		
 		}
+
+	}
+	
+	
+	public String obtenerDatosPorCoordenadas(String params) throws Exception{
+		log.debug(params);
+		
+		String municipio = obtenerMunicipioPorCoordenadas(params);
+		JsonObject datos = new JsonParser().parse(municipio).getAsJsonObject();
+		JsonObject input =  new JsonParser().parse(params).getAsJsonObject();
+		String categoria =  obtenerCategoria(input.get("sSO").getAsString(),input.get("sModelo").getAsString(),input.get("sTipoRed").getAsString());
+		datos.addProperty("categoriaRed", categoria);
+		double x = datos.get("coordenadax").getAsDouble();
+		double y = datos.get("coordenaday").getAsDouble();
+		if (categoria.equalsIgnoreCase(Medida.RED_MOVIL)){
+			datos.addProperty("cobertura", medidaRepository.getCalidadRedMovil(x,y));
+		}
+		else{
+			datos.addProperty("cobertura", medidaRepository.getCalidadRedFija(x,y));
+		}
+		return datos.toString();
+
+	}
+	
+	public String obtenerCalidadCobertura(String categoria, Double velocidad_bajada) throws Exception{
+		Connection conn = dataSource.getConnection();
+		String calidad="Desconocida";
+		try{
+			PreparedStatement stmt=conn.prepareStatement("SELECT  m.rangovelocidadbajada || ' - '::text || c.descripcion::text AS calidad from (select calcularrangovelocidadbajada(?,?) as rangovelocidadbajada) m LEFT JOIN codrangovelocidadbajada c ON m.rangovelocidadbajada = c.id;");
+			stmt.setDouble(1,velocidad_bajada);
+			stmt.setString(2,categoria);
+			
+			ResultSet rs = stmt.executeQuery();
+			rs.next();
+			calidad = rs.getString("calidad");
+		}
+		finally{
+			conn.close();
+		}
+		return calidad;
 
 	}
 	

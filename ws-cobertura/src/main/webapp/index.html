@@ -1,10 +1,11 @@
 <html>
 <head>
-	<script src="/lib/jquery/jquery_1.12.4.min.js"></script>
+	<script src="lib/jquery/jquery_1.12.4.min.js"></script>
 </head>
 <body>
 
 <button onclick="javascript:obtenerccoordsmuni()">ObtenerMunicipioPorCoordenadas</button>
+<button onclick="javascript:obtenerccoordsdata()">ObtenerDatosPorCoordenadas</button>
 <button onclick="javascript:registrarDatosCobertura()">RegistrarMedida</button>
 
 <script>
@@ -15,6 +16,21 @@ function obtenerccoordsmuni(){
 	 $.ajax({
          type: "POST",
          url: '/ws-cobertura/api/obtenerMunicipioPorCoordenadas',
+         data: JSON.stringify(dataToSend),
+         headers:getDefaultHeaders()
+
+     });
+}
+function obtenerccoordsdata(){
+	var dataToSend = new Object();
+	dataToSend.latitud="40.3330404999968124";
+	dataToSend.longitud="-1.20785389996209527";
+	dataToSend.sSO="Android";
+	dataToSend.sModelo="Android";
+	dataToSend.sTipoRed="wifi";
+	 $.ajax({
+         type: "POST",
+         url: '/ws-cobertura/api/obtenerDatosPorCoordenadas',
          data: JSON.stringify(dataToSend),
          headers:getDefaultHeaders()
 
@@ -33,7 +49,7 @@ function getDefaultHeaders() {
     };
 }
 function registrarDatosCobertura(){
-	var dataToSend = {"timestamp":"2023-09-26 08:25:35Z",
+	var dataToSend = {"timestamp":"2023-12-19 17:25:35Z",
 			"ine": "44216",
 		    "municipio": "Teruel",
 		    "provincia": "Teruel",
@@ -42,7 +58,7 @@ function registrarDatosCobertura(){
 		    "coordenadax5000": "652500",
 		    "coordenaday5000": "4467500",
 		    "coordenadax20000": "650000",
-		    "coordenaday20000": "4470000","modelo":"PC","so":"Windows","tipoRed":"Desconocido","operador":"Desconocido","valorIntensidadSenial":"","rangoIntensidadSenial":"-1","velocidadBajada":"20.725631348924164","velocidadSubida":"6.3050256576053805","latencia":"28","datosConexionLimpiados":false,"ubicacionManual":true}
+		    "coordenaday20000": "4470000","modelo":"PC","so":"Android","tipoRed":"wifi","operador":"Desconocido","valorIntensidadSenial":"","rangoIntensidadSenial":"-1","velocidadBajada":"120.725631348924164","velocidadSubida":"6.3050256576053805","latencia":"28","datosConexionLimpiados":false,"ubicacionManual":true}
 	$.ajax({
         type: "POST",
         url: '/ws-cobertura/api/registrarDatosCobertura',
