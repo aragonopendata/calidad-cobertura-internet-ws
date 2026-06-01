@@ -267,7 +267,7 @@ public class CoberturaService {
 	}
 	
 	@Async
-	void updateBest(Medida medida) {
+	public void updateBest(Medida medida) {
 		
 		try{
 			if (medida.getVelocidadBajada()!=null){
@@ -289,7 +289,7 @@ public class CoberturaService {
 			}
 	}
 	@Async
-	void updateCell(Medida medida) {
+	public void updateCell(Medida medida) {
 		try{
 			 if (medida.getCategoria().equalsIgnoreCase(Medida.RED_CABLEADA)){
 			 int upd = medidaRepository.updateCellRedFija(medida.getCoordenadax(),medida.getCoordenaday());

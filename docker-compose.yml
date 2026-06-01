@@ -1,0 +1,31 @@
+services:
+  cobertura-ws:
+    hostname: cobertura-ws
+    build: .
+    restart: always
+    ports:
+      - "4001:8080"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ws-cobertura/config/toc"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - coberturanetwork
+
+networks:
+  coberturanetwork:
+    name: docker-cobertura_network
+    external: true
