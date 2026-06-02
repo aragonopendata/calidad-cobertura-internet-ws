@@ -27,5 +27,5 @@ services:
 
 networks:
   coberturanetwork:
-    name: docker-cobertura_network
+    name: infraestructura_opendata
     external: true
