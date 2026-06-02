@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/ws-cobertura/config/toc"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/servicios/indicadores/config/toc"]
       interval: 30s
       timeout: 10s
       retries: 3
