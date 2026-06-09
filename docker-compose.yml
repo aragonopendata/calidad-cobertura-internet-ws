@@ -4,11 +4,11 @@ services:
     build: .
     restart: always
     ports:
-      - "7040:8080"
+      - "4001:8080"
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/servicios/indicadores/config/toc"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ws-cobertura/config/toc"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -23,9 +23,8 @@ services:
         limits:
           memory: 512m
     networks:
-      - coberturanetwork
+      - infraestructura_opendata
 
 networks:
-  coberturanetwork:
-    name: infraestructura_opendata
+  infraestructura_opendata:
     external: true
