@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <springProperty name="LOG_LEVEL_ROOT" source="logging.level.root" defaultValue="INFO"/>
+    <springProperty name="LOG_LEVEL_APP" source="logging.level.cobertura" defaultValue="INFO"/>
+
     <appender name="Console"
         class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -8,11 +11,11 @@
         </layout>
     </appender>
 
-    <root level="info">
+    <root level="${LOG_LEVEL_ROOT}">
         <appender-ref ref="Console" />
     </root>
 
-    <logger name="cobertura" level="debug" additivity="false">
+    <logger name="cobertura" level="${LOG_LEVEL_APP}" additivity="false">
         <appender-ref ref="Console" />
     </logger>
 
