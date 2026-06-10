@@ -36,7 +36,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body(cobertura.obtenerMunicipioPorCoordenadas(latlon));
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("obtenerMunicipioPorCoordenadas: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -49,7 +49,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body(cobertura.obtenerDatosPorCoordenadas(datos));
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("obtenerDatosPorCoordenadas: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -62,7 +62,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body(cobertura.obtenerCalidadCobertura(categoria,vel_bajada));
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("obtenerCalidadCobertura: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -76,7 +76,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body(cobertura.registrarDatosCobertura(medida));
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("registrarDatosCobertura: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -88,7 +88,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body( "{\"estadoRespuesta\":1}");
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("testVelocidadSubida: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -101,7 +101,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body( dataService.getData(capa, municipio,anyo));
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("getData capa={}: {}", capa, ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -114,7 +114,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body( dataService.getSummary( municipio));
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("getSummary: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -127,7 +127,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body( visor.getToc());
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("getToc: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 
@@ -142,7 +142,7 @@ public class RestController {
     		return ResponseEntity.status(OK).body( visor.getQueryableLayers());
     	}
     	catch(Exception ex){
-    		log.info("error", ex);
+    		log.warn("getQueryableLayers: {}", ex.getMessage());
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     	}
 

@@ -41,7 +41,12 @@ public class CoberturaService {
 	RetryService retryService;
 	
 	public String obtenerMunicipioPorCoordenadas(double latitud,double longitud) throws Exception{
-		Connection con = data.getConnection("geopub");
+		Connection con;
+		try {
+			con = data.getConnection("geopub");
+		} catch (Exception ex) {
+			throw new Exception("geopub DB unavailable: " + ex.getMessage(), ex);
+		}
 		try{
 			Statement stmt =con.createStatement();
 			log.debug("select c_muni_ine,d_muni_ine,provincia, st_x(punto) as x,st_y(punto) as y from (select st_transform(st_setsrid(st_point("+longitud+","+latitud+"),4326),25830) as punto) p, geopub.v101e_municipios where st_intersects(punto,shape)");
